@@ -26,6 +26,9 @@ class RegistrationScreen extends StatefulWidget {
 class _RegistrationScreenState extends State<RegistrationScreen> {
   final FirebaseServices _services = FirebaseServices();
   final _formKey = GlobalKey<FormState>();
+  late TextEditingController _nameController;
+  static List<String?> deliveryAreasList = [null];
+
   late Razorpay _razorpay;
   bool testMode = true;
   int modeClickCount = 0;
@@ -63,10 +66,14 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
     _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
     _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
+
+    //deliveryAreasList.insert(0, '');
+    _nameController = TextEditingController();
   }
 
   @override
   void dispose() {
+    _nameController.dispose();
     super.dispose();
     _razorpay.clear();
   }
@@ -135,7 +142,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   }
 
   void finishRegistration() async {
-    openCheckout();
+    termsAndConditionsDialog(context);
+    //openCheckout();
     _saveToDB();
   }
 
@@ -174,11 +182,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         //'tinNumber':_gstNumber.text.isEmpty? null : _gstNumber.text,
       }).then((value) {
         EasyLoading.dismiss();
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (BuildContext context) => const LandingScreen(),
-          ),
-        );
+        Navigator.pop(context);
       });
     });
   }
@@ -281,7 +285,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
               ),
               TextButton(
                 onPressed: () {
-                  finishRegistration();
+                  //finishRegistration();
                 },
                 child: const Text('I agree!'),
                 style: TextButton.styleFrom(
@@ -615,6 +619,17 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                           }
                         }),
                     const SizedBox(
+                      height: 15,
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Add Delivery Areas:', style: TextStyle(fontSize: 20),),
+                        Container(),
+                      ],
+                    ),
+                    ..._getDeliveryAreas(),
+                    const SizedBox(
                       height: 10,
                     ),
 
@@ -766,8 +781,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   padding: const EdgeInsets.all(8.0),
                   child: ElevatedButton(
                     child: const Text('Register'),
-                    //onPressed: _saveToDB,
-                    //onPressed: () => termsAndConditionsDialog(context),
                     onPressed: () {
                       if (_shopImage == null) {
                         _scaffold('Shop Image not seleted');
@@ -780,7 +793,14 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                           _scaffold('Select address field completely');
                           return;
                         }
+                        //onPressed: _saveToDB,
+                        //onPressed: () => termsAndConditionsDialog(context),
                         finishRegistration();
+                        Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(
+                            builder: (BuildContext context) => const LandingScreen(),
+                          ),
+                        );
                       }
                     },
                   ),
@@ -792,4 +812,99 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       ),
     );
   }
+
+  /// get delivery areas text-fields
+  List<Widget> _getDeliveryAreas(){
+    List<Widget> areasTextFields = [];
+    print('Siva: ' + deliveryAreasList.toString());
+    for(int i=0; i<deliveryAreasList.length; i++){
+      areasTextFields.add(
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            child: Row(
+              children: [
+                Expanded(child: DeliveryAreas(i)),
+                SizedBox(width: 16,),
+                // we need add button at last friends row
+                //_addRemoveButton(i == deliveryAreasList.length-1, i),
+                _addRemoveButton(i == 0, i),
+              ],
+            ),
+          )
+      );
+    }
+    return areasTextFields;
+  }
+
+  /// add / remove button
+  Widget _addRemoveButton(bool add, int index){
+    return InkWell(
+      onTap: (){
+        if(add){
+          // add new text-fields at the top of all friends textfields
+          deliveryAreasList.insert(index, '');
+        }
+        else deliveryAreasList.removeAt(index);
+        setState((){});
+      },
+      child: Container(
+        width: 30,
+        height: 30,
+        decoration: BoxDecoration(
+          color: (add) ? Colors.green : Colors.red,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Icon((add) ? Icons.add : Icons.remove, color: Colors.white,),
+      ),
+    );
+  }
+
 }
+
+class DeliveryAreas extends StatefulWidget {
+  final int index;
+  DeliveryAreas(this.index);
+  //const DeliveryAreas({Key? key}) : super(key: key);
+  @override
+  State<DeliveryAreas> createState() => _DeliveryAreasState();
+}
+
+class _DeliveryAreasState extends State<DeliveryAreas> {
+  late TextEditingController _nameController;
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+
+    WidgetsBinding.instance!.addPostFrameCallback((timeStamp) {
+      _nameController.text = _RegistrationScreenState.deliveryAreasList[widget.index] ?? '';
+    });
+
+    return TextFormField(
+      //autovalidateMode: AutovalidateMode.always,
+      controller: _nameController,
+      onChanged: (v) => _RegistrationScreenState.deliveryAreasList[widget.index] = v,
+      decoration: InputDecoration(
+          hintText: 'Enter delivery area.'
+      ),
+      validator: (String? v){
+        print('RAM:<' + v.toString()+ '>');
+        //if(v!.length < 2) return 'Please enter something valid';
+        if(v!.trim().isEmpty) return 'Please enter something';
+        return null;
+      },
+    );
+  }
+}
+

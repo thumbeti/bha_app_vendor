@@ -39,20 +39,26 @@ class LoginScreen extends StatelessWidget {
               },
               headerBuilder: (context, constraints, _) {
                 return Padding(
-                  padding: const EdgeInsets.all(30),
+                  padding: const EdgeInsets.all(20),
                   child: AspectRatio(
                     aspectRatio: 1,
                     child: Center(
                       child: Column(
-                        children: const [
-                          SizedBox(height: 30,),
-                          Text(
-                            'Bha App', style: TextStyle(
-                              color: Colors.blueAccent,
-                              fontSize: 30,
-                              fontWeight: FontWeight.bold),
+                        children: [
+                          SizedBox(
+                            height: 20,
                           ),
-                          Text('Vendor', style: TextStyle(fontSize: 20),),
+                          Container(
+                            height: 40,
+                            child: Center(
+                                child:
+                                    Image.asset('assets/images/bha_app_logo.png'),
+                              ),
+                          ),
+                          Text(
+                            'Vendor',
+                            style: TextStyle(fontSize: 20),
+                          ),
                         ],
                       ),
                     ),
@@ -63,8 +69,7 @@ class LoginScreen extends StatelessWidget {
               providerConfigs: const [
                 //GoogleProviderConfiguration(clientId: '1:711167476501:android:069d43160361d1c415df1c'),
                 PhoneProviderConfiguration(),
-              ]
-          );
+              ]);
         }
         // Render your application if authenticated
         return const LandingScreen();
