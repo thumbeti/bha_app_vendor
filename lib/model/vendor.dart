@@ -21,7 +21,8 @@ class Vendor {
       this.regPaymentId,
       this.regPaymentSig,
       this.rentalSubMode,
-      this.vendorId
+      this.vendorId,
+      this.deliveryAreas,
   });
 
   Vendor.fromJson(Map<String, Object?> json)
@@ -45,7 +46,8 @@ class Vendor {
     regPaymentId: json['regPaymentId']! as String,
     regPaymentSig: json['regPaymentSig']! as String,
     rentalSubMode: json['rentalSubMode']! as String,
-    vendorId: json['vendorId']! as String
+    vendorId: json['vendorId']! as String,
+    deliveryAreas: json['deliveryAreas']! as List<dynamic>,
   );
 
   final String? shopImage;
@@ -68,6 +70,7 @@ class Vendor {
   final String? regPaymentSig;
   final String? rentalSubMode;
   final String? vendorId;
+  final List<dynamic>? deliveryAreas;
 
   Map<String, Object?> toJson() {
     return {
@@ -90,7 +93,8 @@ class Vendor {
       'regPaymentId': regPaymentId?? '',
       'regPaymentSig': regPaymentSig?? '',
       'rentalSubMode': rentalSubMode,
-      'vendorId': vendorId
+      'vendorId': vendorId,
+      'deliveryAreas': deliveryAreas
     };
   }
 }

@@ -179,6 +179,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         'regPaymentSig': _regPaymentSig?? 'noPaymentSig',
         'rentalSubMode': _rentalSubMode,
         'vendorId': genVendorId(),
+        'deliveryAreas': deliveryAreasList
         //'tinNumber':_gstNumber.text.isEmpty? null : _gstNumber.text,
       }).then((value) {
         EasyLoading.dismiss();

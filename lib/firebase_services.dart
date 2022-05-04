@@ -8,6 +8,9 @@ import 'package:image_picker/image_picker.dart';
 class FirebaseServices{
   User? user = FirebaseAuth.instance.currentUser;
   final CollectionReference vendor = FirebaseFirestore.instance.collection('vendor');
+  final CollectionReference categories = FirebaseFirestore.instance.collection('categories');
+  final CollectionReference mainCategories = FirebaseFirestore.instance.collection('mainCategories');
+  final CollectionReference subCategories = FirebaseFirestore.instance.collection('subCategories');
   firebase_storage.FirebaseStorage storage = firebase_storage.FirebaseStorage.instance;
 
   Future<String> uploadImage(XFile? file, String? reference) async {
