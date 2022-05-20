@@ -16,10 +16,12 @@ class LandingScreen extends StatelessWidget {
     FirebaseServices _services = FirebaseServices();
     return Scaffold(
       body: StreamBuilder<DocumentSnapshot>(
-        stream: _services.vendor.doc(_services.user!.uid).snapshots(),
+        stream: _services.vendors.doc(_services.user!.uid).snapshots(),
         builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
           if (snapshot.hasError) {
-            return const Center(child: Text('Something went wrong'));
+            //_services.scaffold(context, message)
+            return const Center(child: Text('Something went wrong!!'));
+            //return const RegistrationScreen();
           }
 
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -46,7 +48,7 @@ class LandingScreen extends StatelessWidget {
                   Text('Your vendor ID: '+ vendor.vendorId!, style: const TextStyle(fontSize: 20),),
                   const SizedBox(height: 10,),
                   const Text(
-                    'Thanks for registering with Bha App.\nBha App admin will contact you soon.',
+                    'Thanks for registering with BhaApp.\nBhaApp admin will contact you soon.',
                     textAlign: TextAlign.center,
                     style: TextStyle(fontSize: 15),
                   ),

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../provider/vendor_provider.dart';
 import '../widget/custom_drawer.dart';
+import '../widget/orders/received_orders.dart';
 
 class HomeScreen extends StatelessWidget {
   static const String id = 'home_screen';
@@ -15,14 +16,39 @@ class HomeScreen extends StatelessWidget {
     if(_vendorData.doc == null) {
       _vendorData.getVendorData();
     }
-    return Scaffold(
-      appBar: AppBar(
-        elevation: 0,
-        title: Text('Dashboard'),
-      ),
-      drawer: CustomDrawer(),
-      body: Center(
-        child: Text('Dashboard', style: TextStyle(fontSize: 22),),
+    return DefaultTabController(
+      length: 2,
+      initialIndex: 0,
+      child: Scaffold(
+        appBar: AppBar(
+          elevation: 0,
+          title: Text('Dashboard'),
+          bottom: TabBar(
+            //isScrollable: true,
+            indicator: UnderlineTabIndicator(
+              borderSide: BorderSide(
+                width: 4,
+                color: Colors.black,
+                style: BorderStyle.solid,
+              ),
+            ),
+            tabs: [
+              Tab(
+                child: Text('Received Orders'),
+              ),
+              Tab(
+                child: Text('Completed Orders'),
+              ),
+            ],
+          ),
+        ),
+        drawer: CustomDrawer(),
+        body: TabBarView(
+          children: [
+          ReceivedOrders(),
+          ReceivedOrders(),
+        ],
+        ),
       ),
     );
   }

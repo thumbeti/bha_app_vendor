@@ -3,14 +3,20 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:whatsapp_unilink/whatsapp_unilink.dart';
+import 'package:intl/intl.dart';
 
 class FirebaseServices{
   User? user = FirebaseAuth.instance.currentUser;
-  final CollectionReference vendor = FirebaseFirestore.instance.collection('vendor');
+  final CollectionReference vendors = FirebaseFirestore.instance.collection('vendors');
   final CollectionReference categories = FirebaseFirestore.instance.collection('categories');
   final CollectionReference mainCategories = FirebaseFirestore.instance.collection('mainCategories');
   final CollectionReference subCategories = FirebaseFirestore.instance.collection('subCategories');
+  final CollectionReference products = FirebaseFirestore.instance.collection('products');
+  final CollectionReference sendEmail = FirebaseFirestore.instance.collection('mail');
   firebase_storage.FirebaseStorage storage = firebase_storage.FirebaseStorage.instance;
 
   Future<String> uploadImage(XFile? file, String? reference) async {
@@ -23,9 +29,170 @@ class FirebaseServices{
 
   Future<void> addVendor({Map<String, dynamic>? data}) {
     // Call the user's CollectionReference to add a new user
-    return vendor.doc(user!.uid)
+    return vendors.doc(user!.uid)
         .set(data)
         .then((value) => print("User Added"))
         .catchError((error) => print("Failed to add user: $error"));
+  }
+
+  Future<void> saveToDB({Map<String, dynamic>? data, BuildContext? context}) {
+    scaffold(context,"Saving..");
+    print(data);
+    return products
+        .add(data)
+        .then((value) => scaffold(context,"Saved"))
+        .catchError((error) => scaffold(context,"Failed to save: $error"));
+  }
+
+  scaffold(context, message) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(
+        message,
+      ),
+      action: SnackBarAction(
+        label: 'OK',
+        onPressed: () {
+          ScaffoldMessenger.of(context).clearSnackBars();
+        },
+      ),
+    ));
+  }
+
+  launchWhatsApp({String? phoneNumber, String? msg}) async {
+    final link = WhatsAppUnilink(
+      phoneNumber: phoneNumber,
+      text: msg,
+    );
+    // Convert the WhatsAppUnilink instance to a string.
+    // Use either Dart's string interpolation or the toString() method.
+    // The "launch" method is part of "url_launcher".
+    //await launchUrl('$link');
+    await launch('$link');
+  }
+
+  sendEmailForRegistration({
+    String? vendorEmail,
+    String? msg
+  }) async {
+    print('In sendEmailForRegistration');
+    await sendEmail.add(
+      {
+        'to': "${vendorEmail}",
+        'cc': 'bhaapp22@gmail.com',
+        'bcc': ['thumbeti@gmail.com'],
+        //'bcc': ['thumbeti@gmail.com', 'tbrahma@yahoo.com'],
+        'message': {
+          'subject': "Thanks for registering with BhaApp",
+          'text': '${msg}',
+        }
+      },
+    ).then(
+          (value) {
+        print("Queued email for delivery.");
+      },
+    );
+    print('Email is sent');
+  }
+
+  String formInvoice({String? vendorName, String? address, String? paymentID,
+    String? gstNo, String? regFee, String? cgstFee, String? sgstFee,
+    String? igstFee, String? total,
+    int? cgst, int?sgst, int? igst}){
+    String dateString = DateFormat('yyyy-MM-dd – kk:mm').format(DateTime.now());
+    return 'T A X I N V O I C E\n'
+        '----------------------------\n'
+        'Oxysmart Private Limited\n'
+        '#324, 8th Cross,\n'
+        'MCECHS Layout Phase 1,\n'
+        'Dr Shivaram Karanth Nagar,\n'
+        'Bangalore 560 077, Karnataka, India,\n'
+        'M: +919071900090, E: info@jiosmart.in, CIN: U74999KA2016PTC095005,\n'
+        'GSTIN: 29AADCJ7541F1ZG,\n'
+        'PAN: AADCJ7541F\n\n'
+        'INVOICE TO: ${vendorName}\n'
+        'INVOICE NO.: ${paymentID}\n'
+        'INVOICE DATE: ${dateString}\n'
+        'ADDRESS: ${address}\n\n'
+        'Client GST No.: ${gstNo}\n\n'
+        'BhaApp team thanks you and confirms your registration:\n\n'
+        'SNo  Activity description       Amount\n'
+        '1    Registration with BhaApp   Rs. ${regFee}\n'
+        '      CGST @ ${cgst}%           Rs. ${cgstFee}\n'
+        '      SGST @ ${sgst}%           Rs. ${sgstFee}\n'
+        '      IGST @ ${igst}%           Rs. ${igstFee}\n'
+        '      Total                     Rs. ${total}\n'
+        'Rupees Five Hundred and Ninety only.\n\n'
+        'Declaration:\n'
+        'Certified that all the particulars shown in the above Invoice are true and correct.\n\n'
+        'Terms & Conditions:\n'
+        'E & O.E.\n'
+        '1. Registration charges are not refundable\n'
+        '2. Subject to "Karnataka" jurisdiction only\n\n'
+        'Thanking you,\n'
+        'BhaApp Team\n'
+        'Oxysmart Pvt Ltd';
+  }
+
+  String formInvoice_old({String? vendorName, String? address, String? paymentID,
+                    String? gstNo, String? regFee, String? cgstFee, String? sgstFee,
+                    String? igstFee, String? total,
+                    int? cgst, int?sgst, int? igst}){
+    String dateString = DateFormat('yyyy-MM-dd – kk:mm').format(DateTime.now());
+    return '            T A X I N V O I C E\n'
+    '                                                                        \n'
+    '             Oxysmart Private Limited                                   \n'
+    '#324, 8th Cross, MCECHS Layout Phase 1, Dr Shivaram Karanth Nagar, Bangalore 560 077,\n'
+    '         Karnataka, India, M: +91 89 71 765469, E: info@jiosmart.in,     \n'
+    'CIN: U74999KA2016PTC095005, GSTIN: 29AADCJ7541F1ZG, PAN: AADCJ7541F      \n'
+    'Invoice to: ${vendorName}                   INVOICE NO.: ${paymentID}    \n'
+    'Mr/Mrs                                     INVOICE DATE: ${dateString}   \n'
+    'Address: ${address}\n'
+    'Client GST No.: ${gstNo}\n'
+    'BhaApp team thanks you and confirms your registration:                   \n'
+    'SNo  Activity description       Amount             \n'
+    '1    Registration with BhaApp   Rs. ${regFee}\n'
+    '     CGST @ ${cgst}%                  Rs. ${cgstFee}\n'
+    '     SGST @ ${sgst}%                  Rs. ${sgstFee}\n'
+    '     IGST @ ${igst}%                  Rs. ${igstFee}\n'
+    '     Total                      Rs. ${total}\n'
+    'Rupees Five Hundred and Ninety only.               \n'
+    'Declaration:\n'
+    'Certified that all the particulars shown in the above Invoice are true and correct.\n'
+    'Terms & Conditions:\n'
+    'E & O.E.\n'
+    '1. Registration charges are not refundable\n'
+    '2. Subject to "Karnataka" jurisdiction only\n'
+    'Thanking you,\n'
+    'BhaApp Team\n'
+    'Oxysmart Pvt Ltd\n';
+  }
+
+  String formattedNumber(number) {
+    var f = NumberFormat("#,##,###", 'en_IN');
+    return f.format(number);
+  }
+
+  Widget formField(
+      {TextEditingController? controller,
+        String? label,
+        TextInputType? inputType,
+        void Function(String)? onChanged,
+        int? minLine,
+        int? maxLine}) {
+    return TextFormField(
+      controller: controller,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
+      keyboardType: inputType,
+      decoration: InputDecoration(
+        label: Text(label!),
+      ),
+      validator: (value) {
+        if (value!.isEmpty) { return label;}
+        //return value==null? 'Enter value':null;
+      },
+      onChanged: onChanged,
+      minLines: minLine,
+      maxLines: maxLine,
+    );
   }
 }

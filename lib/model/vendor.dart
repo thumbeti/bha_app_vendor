@@ -4,9 +4,11 @@ class Vendor {
   Vendor({
       this.shopName,
       this.ownerName,
+      this.gstNumber,
       this.mobile,
       this.pinCode,
       this.address,
+      this.email,
       this.country,
       this.state,
       this.city,
@@ -20,18 +22,26 @@ class Vendor {
       this.weeklyOffDay,
       this.regPaymentId,
       this.regPaymentSig,
-      this.rentalSubMode,
       this.vendorId,
       this.deliveryAreas,
+      this.whatsAppNum,
+      this.representativeID,
+      this.termsAndConditions,
+      this.cgst,
+      this.sgst,
+      this.igst,
+      this.invoice,
   });
 
   Vendor.fromJson(Map<String, Object?> json)
       : this(
       shopName: json['shopName']! as String,
     ownerName: json['ownerName']! as String,
+    gstNumber: json['gstNumber']! as String,
     mobile: json['mobile']! as String,
     pinCode: json['pinCode']! as String,
     address: json['address']! as String,
+    email: json['email']! as String,
     country: json['country']! as String,
     state: json['state']! as String,
     city: json['city']! as String,
@@ -45,17 +55,25 @@ class Vendor {
     weeklyOffDay: json['weeklyOffDay']! as String,
     regPaymentId: json['regPaymentId']! as String,
     regPaymentSig: json['regPaymentSig']! as String,
-    rentalSubMode: json['rentalSubMode']! as String,
     vendorId: json['vendorId']! as String,
     deliveryAreas: json['deliveryAreas']! as List<dynamic>,
+    whatsAppNum: json['whatsAppNum']! as String,
+    representativeID: json['representativeID']! as String,
+    termsAndConditions: json['termsAndConditions']! as String,
+    cgst:json['cgst']! as double,
+    sgst:json['sgst']! as double,
+    igst:json['igst']! as double,
+    invoice:json['invoice']! as String,
   );
 
   final String? shopImage;
   final String? shopName;
   final String? ownerName;
+  final String? gstNumber;
   final String? mobile;
   final String? pinCode;
   final String? address;
+  final String? email;
   final String? country;
   final String? state;
   final String? city;
@@ -68,17 +86,25 @@ class Vendor {
   final String? weeklyOffDay;
   final String? regPaymentId;
   final String? regPaymentSig;
-  final String? rentalSubMode;
   final String? vendorId;
   final List<dynamic>? deliveryAreas;
+  final String? whatsAppNum;
+  final String? representativeID;
+  final String? termsAndConditions;
+  final double? cgst;
+  final double? sgst;
+  final double? igst;
+  final String? invoice;
 
   Map<String, Object?> toJson() {
     return {
       'shopName': shopName,
       'ownerName': ownerName,
+      'gstNumber': gstNumber,
       'mobile': mobile,
       'pinCode': pinCode,
-      'landmark': address,
+      'address': address,
+      'email': email,
       'country': country,
       'state': state,
       'city': city,
@@ -92,9 +118,15 @@ class Vendor {
       'weeklyOffDay': weeklyOffDay,
       'regPaymentId': regPaymentId?? '',
       'regPaymentSig': regPaymentSig?? '',
-      'rentalSubMode': rentalSubMode,
       'vendorId': vendorId,
-      'deliveryAreas': deliveryAreas
+      'deliveryAreas': deliveryAreas,
+      'whatsAppNum':whatsAppNum,
+      'representativeID': representativeID,
+      'termsAndConditions': termsAndConditions,
+      'cgst': cgst,
+      'sgst': sgst,
+      'igst': igst,
+      'invoice': invoice,
     };
   }
 }

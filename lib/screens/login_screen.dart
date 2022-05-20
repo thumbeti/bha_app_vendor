@@ -23,8 +23,8 @@ class LoginScreen extends StatelessWidget {
                   padding: const EdgeInsets.only(bottom: 8),
                   child: Text(
                     action == AuthAction.signIn
-                        ? 'Welcome to Bha App-Vendor! Please sign in to continue.'
-                        : 'Welcome to Bha App-Vendor! Please create an account to continue',
+                        ? 'Welcome to BhaApp-Vendor! Please sign in to continue.'
+                        : 'Welcome to BhaApp-Vendor! Please create an account to continue',
                   ),
                 );
               },

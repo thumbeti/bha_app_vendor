@@ -6,12 +6,14 @@ import 'package:bha_app_vendor/screens/landing_screen.dart';
 import 'package:csc_picker/csc_picker.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:in_validator/gst_validator.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
+import 'package:intl/intl.dart';
 
 import '../constants.dart';
 
@@ -33,15 +35,30 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   bool testMode = true;
   int modeClickCount = 0;
 
+  int cgst = 9;
+  int sgst = 9;
+  int igst = 0;
+
+  double cgstFee = 0;
+  double sgstFee = 0;
+  double igstFee = 0;
+  double oneTimeRegTotalFee = 0;
+
+  String? invoice;
+
   final _shopName = TextEditingController();
   final _ownerName = TextEditingController();
+  final _gstNumber = TextEditingController(text: '29AADCJ7541F1ZG');
   final _contactNumber = TextEditingController();
+  final _whatsAppNumber = TextEditingController();
   final _email = TextEditingController();
   final _pinCode = TextEditingController();
   final _address = TextEditingController();
+  final _repID = TextEditingController();
+  bool whatsAppNumEntered = false;
 
   String? _bName;
-  String? _rentalSubMode = rentalSubModes[1];
+  //String? _rentalSubMode = rentalSubModes[1];
   String? _weeklyOffDay = weeklyOffDay[0];
   XFile? _shopImage;
   String? _shopImageUrl;
@@ -81,6 +98,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   Widget _formField({
     TextEditingController? controller,
     String? label,
+    String? initValue,
     TextInputType? type,
     String? prefix,
     int? maxLength,
@@ -89,6 +107,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     return TextFormField(
       controller: controller,
       keyboardType: type,
+      initialValue: initValue,
       decoration: InputDecoration(
         labelText: label,
         prefix: Text(prefix ?? ''),
@@ -111,20 +130,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     return image;
   }
 
-  _scaffold(message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(
-        message,
-      ),
-      action: SnackBarAction(
-        label: 'OK',
-        onPressed: () {
-          ScaffoldMessenger.of(context).clearSnackBars();
-        },
-      ),
-    ));
-  }
-
   Map timeOfDayToFirebase(TimeOfDay timeOfDay) {
     return {'hour': timeOfDay.hour, 'minute': timeOfDay.minute};
   }
@@ -133,18 +138,30 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     return TimeOfDay(hour: data['hour'], minute: data['minute']);
   }
 
+  void setRegFees() {
+    if ((stateValue != null) && (stateValue!.contains(OXY_TAX_AREA))) {
+      cgst = cgst_B;
+      sgst = sgst_B;
+      igst = igst_B;
+    } else {
+      cgst = cgst_NB;
+      sgst = sgst_NB;
+      igst = igst_NB;
+    }
+    cgstFee = oneTimeRegistrationFee * (cgst/100);
+    sgstFee = oneTimeRegistrationFee * (sgst/100);
+    igstFee = oneTimeRegistrationFee * (igst/100);
+    oneTimeRegTotalFee = oneTimeRegistrationFee + cgstFee + sgstFee + igstFee;
+  }
+
   String genVendorId() {
     var r = Random();
     const _chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
     //String vid = cityValue!.substring(0,3)+'_'+List.generate(5, (index) => _chars[r.nextInt(_chars.length)]).join();
-    String vid = _pinCode.text+'_'+List.generate(4, (index) => _chars[r.nextInt(_chars.length)]).join();
+    String vid = _pinCode.text +
+        '_' +
+        List.generate(4, (index) => _chars[r.nextInt(_chars.length)]).join();
     return vid;
-  }
-
-  void finishRegistration() async {
-    termsAndConditionsDialog(context);
-    //openCheckout();
-    _saveToDB();
   }
 
   _saveToDB() {
@@ -157,14 +174,16 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
           _shopImageUrl = url;
         });
       }
-    }).then((value) {
-      _services.addVendor(data: {
+    }).then((value) async {
+      await _services.addVendor(data: {
         'shopImage': _shopImageUrl,
         'shopName': _shopName.text,
         'ownerName': _ownerName.text,
+        'gstNumber': _gstNumber.text,
         'mobile': '+91${_contactNumber.text}',
         'pinCode': _pinCode.text,
         'address': _address.text,
+        'email': _email.text,
         'country': countryValue,
         'state': stateValue,
         'city': cityValue,
@@ -175,17 +194,40 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         'openTime': timeOfDayToFirebase(openTime),
         'closeTime': timeOfDayToFirebase(closeTime),
         'weeklyOffDay': _weeklyOffDay,
-        'regPaymentId': _regPaymentId?? 'noPaymentId',
-        'regPaymentSig': _regPaymentSig?? 'noPaymentSig',
-        'rentalSubMode': _rentalSubMode,
+        'regPaymentId': _regPaymentId ?? 'noPaymentId',
+        'regPaymentSig': _regPaymentSig ?? 'noPaymentSig',
         'vendorId': genVendorId(),
-        'deliveryAreas': deliveryAreasList
+        'deliveryAreas': deliveryAreasList,
+        'whatsAppNum': '+91${_whatsAppNumber.text}',
+        'representativeID': _repID.text,
+        'termsAndConditions': termsAndConditions,
+        'cgst' : cgst.toDouble(),
+        'sgst' : sgst.toDouble(),
+        'igst' : igst.toDouble(),
+        'invoice': invoice,
         //'tinNumber':_gstNumber.text.isEmpty? null : _gstNumber.text,
-      }).then((value) {
+      }).then((value) async {
         EasyLoading.dismiss();
-        Navigator.pop(context);
+        if ((_email.text.isNotEmpty == true) &&
+            (_email.text.length > 5)){
+          print('SIVA: email details2 : ' + _email.text);
+          _services.sendEmailForRegistration(
+            vendorEmail: _email.text,
+            msg: invoice,
+          );
+        }
+        if (_whatsAppNumber.text.isNotEmpty == true) {
+          await _services.launchWhatsApp(
+              phoneNumber: '+91${_whatsAppNumber.text}', msg: invoice);
+        }
+        return Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (BuildContext context) => const LandingScreen(),
+          ),
+        );
       });
     });
+    return;
   }
 
   Future<void> _selectTime(BuildContext context, String openClose) async {
@@ -206,17 +248,27 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     }
   }
 
+  String _convertTo12Hours(TimeOfDay selectedTime) {
+    DateTime tempDate = DateFormat("hh:mm").parse(
+        selectedTime.hour.toString() +
+            ":" + selectedTime.minute.toString());
+    var dateFormat = DateFormat("h:mm a");
+    return dateFormat.format(tempDate);
+  }
+
 //  num fac = pow(10, 2);
-  void openCheckoutForApp() async {
-    int priceInPaise = (oneTimeRegistrationFee * 100).round();
+  openCheckoutForApp() {
+    int priceInPaise = (oneTimeRegTotalFee * 100).round();
     var options = {
       'key': testMode ? "rzp_test_iN0mm4sTh9A0YI" : "rzp_live_lAJGHfpfAKDzER",
       'amount': priceInPaise,
-      'name': 'Bha App',
+      'name': 'BhaApp',
       'description': 'Payment for registration.',
       'retry': {'enabled': true, 'max_count': 1},
       'send_sms_hash': true,
-      'prefill': {'contact': '+91${_contactNumber.text}', 'email': _email.text},
+      'prefill': ((_email.text.isNotEmpty == true) && (_email.text.length > 5))?
+      {'contact': '+91${_contactNumber.text}', 'email': _email.text}:
+      {'contact': '+91${_contactNumber.text}', 'email': DEFAULT_EMAIL},
       'external': {
         'wallets': ['paytm']
       }
@@ -228,17 +280,38 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     } catch (e) {
       debugPrint('Error: e');
     }
+    return;
   }
 
   void _handlePaymentSuccess(PaymentSuccessResponse response) {
     setState(() {
-      _regPaymentId = response.paymentId!;
-      _regPaymentSig = response.signature!;
+      if (response.paymentId != null) {
+        _regPaymentId = response.paymentId!;
+      }
+      if (response.signature != null) {
+        _regPaymentSig = response.signature!;
+      }
     });
     print('Success Response: $response');
     Fluttertoast.showToast(
         msg: "SUCCESS: " + response.paymentId!,
         toastLength: Toast.LENGTH_SHORT);
+
+    invoice = _services.formInvoice(
+      vendorName: _ownerName.text,
+      address: _address.text,
+      paymentID: _regPaymentId ?? 'noPaymentId',
+      gstNo: _gstNumber.text,
+      regFee: oneTimeRegistrationFee.toStringAsFixed(2),
+      cgstFee: cgstFee.toStringAsFixed(2),
+      sgstFee: sgstFee.toStringAsFixed(2),
+      igstFee: igstFee.toStringAsFixed(2),
+      total: oneTimeRegTotalFee.toStringAsFixed(2),
+      cgst: cgst,
+      sgst: sgst,
+      igst: igst,
+    );
+    _saveToDB();
   }
 
   void _handlePaymentError(PaymentFailureResponse response) {
@@ -255,11 +328,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         toastLength: Toast.LENGTH_SHORT);
   }
 
-  void openCheckout() async {
-    openCheckoutForApp();
-  }
-
-  Future<dynamic> termsAndConditionsDialog(BuildContext context) {
+  termsAndConditionsDialog(BuildContext context) {
     return showDialog(
         context: context,
         builder: (context) {
@@ -286,7 +355,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
               ),
               TextButton(
                 onPressed: () {
-                  //finishRegistration();
+                  openCheckoutForApp();
+                  Navigator.pop(context);
                 },
                 child: const Text('I agree!'),
                 style: TextButton.styleFrom(
@@ -475,29 +545,84 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                             return 'Enter Owner name';
                           }
                         }),
-                    _formField(
-                        controller: _contactNumber,
-                        label: 'Contact number',
-                        type: TextInputType.phone,
-                        maxLength: 10,
-                        prefix: '+91',
-                        validator: (value) {
-                          if (value!.isEmpty) {
-                            return 'Enter Contact number';
+                    TextFormField(
+                      controller: _gstNumber,
+                      keyboardType: TextInputType.text,
+                      decoration: InputDecoration(
+                        labelText: 'GST number',
+                      ),
+                      maxLength: 15,
+                      maxLengthEnforcement: MaxLengthEnforcement.enforced,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return 'Enter GST Number';
+                        }
+                        if(value.isNotEmpty) {
+                          final bool isValid = GSTValidator().isValid(value);
+                          if (isValid == false) {
+                            return 'Invalid GST Number';
                           }
-                        }),
+                        }
+                      },
+                    ),
+                    TextFormField(
+                      controller: _contactNumber,
+                      keyboardType: TextInputType.phone,
+                      decoration: InputDecoration(
+                        labelText: 'Contact number',
+                        prefix: Text('+91'),
+                      ),
+                      maxLength: 10,
+                      maxLengthEnforcement: MaxLengthEnforcement.enforced,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return 'Enter Contact number';
+                        }
+                      },
+                      onChanged: (value) {
+                        if(whatsAppNumEntered == false) {
+                          setState(() {
+                            _whatsAppNumber.text = value;
+                          });
+                        }
+                      },
+                    ),
+                    TextFormField(
+                      controller: _whatsAppNumber,
+                      keyboardType: TextInputType.phone,
+                      decoration: InputDecoration(
+                        labelText: 'WhatsApp number',
+                        prefix: Text('+91'),
+                      ),
+                      maxLength: 10,
+                      maxLengthEnforcement: MaxLengthEnforcement.enforced,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return 'Enter WhatsApp number';
+                        }
+                      },
+                      onChanged: (value) {
+                          whatsAppNumEntered = true;
+                      },
+                    ),
                     _formField(
                         controller: _email,
                         label: 'Email',
                         type: TextInputType.emailAddress,
                         maxLength: 100,
                         validator: (value) {
+                          /*
                           if (value!.isEmpty) {
                             return 'Enter Email address';
-                          }
-                          final bool isValid = EmailValidator.validate(value);
-                          if (isValid == false) {
-                            return 'Invalid Email';
+                          }*/
+                          if(value!.isNotEmpty) {
+                            final bool isValid = EmailValidator.validate(value);
+                            if (isValid == false) {
+                              return 'Invalid Email';
+                            }
                           }
                         }),
                     const SizedBox(
@@ -520,9 +645,10 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                                 primary: Colors.blue,
                               ),
                               child: Text(
-                                openTime.hour.toString().padLeft(2, "0") +
+                                  _convertTo12Hours(openTime),
+                                /*openTime.hour.toString().padLeft(2, "0") +
                                     ":" +
-                                    openTime.minute.toString().padLeft(2, "0"),
+                                    openTime.minute.toString().padLeft(2, "0"),*/
                                 style: const TextStyle(color: Colors.white),
                               ),
                             ),
@@ -541,9 +667,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                                 primary: Colors.blue,
                               ),
                               child: Text(
-                                closeTime.hour.toString().padLeft(2, "0") +
-                                    ":" +
-                                    closeTime.minute.toString().padLeft(2, "0"),
+                                  _convertTo12Hours(closeTime),
                                 style: const TextStyle(color: Colors.white),
                               ),
                               //child: const Text("Close"),
@@ -554,7 +678,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                         ),
                       ],
                     ),
-                    Row(
+                    /* Row(
                       children: [
                         const Text('Rental Subscription : '),
                         Expanded(
@@ -581,7 +705,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                               }),
                         ),
                       ],
-                    ),
+                    ), */
                     Row(
                       children: [
                         const Text('Weekly off day : '),
@@ -625,7 +749,10 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Add Delivery Areas:', style: TextStyle(fontSize: 20),),
+                        Text(
+                          'Add Delivery Areas:',
+                          style: TextStyle(fontSize: 20),
+                        ),
                         Container(),
                       ],
                     ),
@@ -721,6 +848,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                         setState(() {
                           ///store value in city variable
                           cityValue = value;
+                          setRegFees();
                         });
                       },
                     ),
@@ -734,6 +862,16 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                             return 'Enter PIN code';
                           }
                         }),
+                    _formField(
+                        controller: _repID,
+                        label: 'Representative ID',
+                        type: TextInputType.text,
+                        maxLength: 100,
+                        validator: (value) {
+                          if (value!.isEmpty) {
+                            return 'Enter Representative ID';
+                          }
+                        }),
                   ],
                 ),
               ),
@@ -741,34 +879,124 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 height: 10,
               ),
               // Registration charges
+              Padding(
+                padding: const EdgeInsets.only(left: 30.0, right: 30.0),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'Registration fee (One time):',
+                          style: TextStyle(
+                            fontFamily: 'CircularStd-Medium',
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          '\u{20B9} ' + oneTimeRegistrationFee.toStringAsFixed(2),
+                          style: TextStyle(
+                            fontFamily: 'CircularStd-Bold',
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Container(),
+                      ],
+                    ),
+                    Container(
+                      child: Text(
+                          'This includes One time setup, One T-Shirt,\n4 Posters, and One month rental'),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'CGST @ $cgst%:',
+                          style: TextStyle(
+                            fontFamily: 'CircularStd-Medium',
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(width: 40,),
+                        Text(
+                          '\u{20B9} ' + cgstFee.toStringAsFixed(2),
+                          style: TextStyle(
+                            fontFamily: 'CircularStd-Bold',
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Container(),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'SGST @ $sgst%:',
+                          style: TextStyle(
+                            fontFamily: 'CircularStd-Medium',
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(width: 40,),
+                        Text(
+                          '\u{20B9} ' + sgstFee.toStringAsFixed(2),
+                          style: TextStyle(
+                            fontFamily: 'CircularStd-Bold',
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Container(),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'IGST @ $igst%:',
+                          style: TextStyle(
+                            fontFamily: 'CircularStd-Medium',
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(width: 40,),
+                        Text(
+                          '\u{20B9} ' + igstFee.toStringAsFixed(2),
+                          style: TextStyle(
+                            fontFamily: 'CircularStd-Bold',
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Container(),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+
+              Divider(
+                color: Colors.black,
+              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Container(),
                   const Text(
-                    'Registration fee:',
+                    'Total:',
                     style: TextStyle(
                       fontFamily: 'CircularStd-Medium',
                       fontWeight: FontWeight.bold,
                     ),
                   ),
+                  SizedBox(width: 25,),
                   Text(
-                    '\u{20B9} ' + oneTimeRegistrationFee.toStringAsFixed(2),
+                    '\u{20B9} ' + oneTimeRegTotalFee.toStringAsFixed(2),
                     style: TextStyle(
                       fontFamily: 'CircularStd-Bold',
-                      fontSize: 23,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   Container(),
-                ],
-              ),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  Text(
-                      'This Includes One time setup,\nTwo Posters, and One T-Shirt'),
                 ],
               ),
             ],
@@ -784,24 +1012,18 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     child: const Text('Register'),
                     onPressed: () {
                       if (_shopImage == null) {
-                        _scaffold('Shop Image not seleted');
+                        _services.scaffold(context, 'Shop Image not selected');
                         return;
                       }
                       if (_formKey.currentState!.validate()) {
                         if (countryValue == null ||
                             stateValue == null ||
                             cityValue == null) {
-                          _scaffold('Select address field completely');
+                          _services.scaffold(
+                              context, 'Select address field completely');
                           return;
                         }
-                        //onPressed: _saveToDB,
-                        //onPressed: () => termsAndConditionsDialog(context),
-                        finishRegistration();
-                        Navigator.of(context).pushReplacement(
-                          MaterialPageRoute(
-                            builder: (BuildContext context) => const LandingScreen(),
-                          ),
-                        );
+                        termsAndConditionsDialog(context);
                       }
                     },
                   ),
@@ -815,38 +1037,37 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   }
 
   /// get delivery areas text-fields
-  List<Widget> _getDeliveryAreas(){
+  List<Widget> _getDeliveryAreas() {
     List<Widget> areasTextFields = [];
-    print('Siva: ' + deliveryAreasList.toString());
-    for(int i=0; i<deliveryAreasList.length; i++){
-      areasTextFields.add(
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8.0),
-            child: Row(
-              children: [
-                Expanded(child: DeliveryAreas(i)),
-                SizedBox(width: 16,),
-                // we need add button at last friends row
-                //_addRemoveButton(i == deliveryAreasList.length-1, i),
-                _addRemoveButton(i == 0, i),
-              ],
+    for (int i = 0; i < deliveryAreasList.length; i++) {
+      areasTextFields.add(Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        child: Row(
+          children: [
+            Expanded(child: DeliveryAreas(i)),
+            SizedBox(
+              width: 16,
             ),
-          )
-      );
+            // we need add button at last friends row
+            //_addRemoveButton(i == deliveryAreasList.length-1, i),
+            _addRemoveButton(i == 0, i),
+          ],
+        ),
+      ));
     }
     return areasTextFields;
   }
 
   /// add / remove button
-  Widget _addRemoveButton(bool add, int index){
+  Widget _addRemoveButton(bool add, int index) {
     return InkWell(
-      onTap: (){
-        if(add){
+      onTap: () {
+        if (add) {
           // add new text-fields at the top of all friends textfields
           deliveryAreasList.insert(index, '');
-        }
-        else deliveryAreasList.removeAt(index);
-        setState((){});
+        } else
+          deliveryAreasList.removeAt(index);
+        setState(() {});
       },
       child: Container(
         width: 30,
@@ -855,11 +1076,13 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
           color: (add) ? Colors.green : Colors.red,
           borderRadius: BorderRadius.circular(20),
         ),
-        child: Icon((add) ? Icons.add : Icons.remove, color: Colors.white,),
+        child: Icon(
+          (add) ? Icons.add : Icons.remove,
+          color: Colors.white,
+        ),
       ),
     );
   }
-
 }
 
 class DeliveryAreas extends StatefulWidget {
@@ -887,25 +1110,23 @@ class _DeliveryAreasState extends State<DeliveryAreas> {
 
   @override
   Widget build(BuildContext context) {
-
     WidgetsBinding.instance!.addPostFrameCallback((timeStamp) {
-      _nameController.text = _RegistrationScreenState.deliveryAreasList[widget.index] ?? '';
+      _nameController.text =
+          _RegistrationScreenState.deliveryAreasList[widget.index] ?? '';
     });
 
     return TextFormField(
       //autovalidateMode: AutovalidateMode.always,
       controller: _nameController,
-      onChanged: (v) => _RegistrationScreenState.deliveryAreasList[widget.index] = v,
-      decoration: InputDecoration(
-          hintText: 'Enter delivery area.'
-      ),
-      validator: (String? v){
-        print('RAM:<' + v.toString()+ '>');
+      onChanged: (v) =>
+          _RegistrationScreenState.deliveryAreasList[widget.index] = v,
+      decoration: InputDecoration(hintText: 'Enter delivery area.'),
+      validator: (String? v) {
+        print('RAM:<' + v.toString() + '>');
         //if(v!.length < 2) return 'Please enter something valid';
-        if(v!.trim().isEmpty) return 'Please enter something';
+        if (v!.trim().isEmpty) return 'Please enter something';
         return null;
       },
     );
   }
 }
-

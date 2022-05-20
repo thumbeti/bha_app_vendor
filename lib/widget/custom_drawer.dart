@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -63,7 +62,7 @@ class CustomDrawer extends StatelessWidget {
                 route: HomeScreen.id,
               ),
               ExpansionTile(
-                leading: Icon(Icons.weekend_outlined),
+                leading: Icon(Icons.account_tree_outlined),
                 title: Text('Products'),
                 children: [
                   _menu(
