@@ -16,6 +16,7 @@ class Product {
       this.seller,
       this.sku,
       this.manageInventory,
+        this.availableInStock,
       this.soh,
       this.reOrderLevel,
       this.chargeShipping,
@@ -38,6 +39,7 @@ class Product {
           seller: json['seller']==null? null : json['seller']! as Map,
           sku: json['sku']==null? null : json['sku']! as String,
           manageInventory: json['manageInventory']==null? null : json['manageInventory']! as bool,
+          availableInStock: json['availableInStock']==null? null : json['availableInStock']! as bool,
           soh: json['soh']==null? null : json['soh']! as int,
           reOrderLevel: json['reOrderLevel']==null? null : json['reOrderLevel']! as int,
           chargeShipping: json['chargeShipping']==null? null : json['chargeShipping']! as bool,
@@ -59,6 +61,7 @@ class Product {
   final Map? seller;
   final String? sku;
   final bool? manageInventory;
+  final bool? availableInStock;
   final int? soh;
   final int? reOrderLevel;
   final bool? chargeShipping;
@@ -81,6 +84,7 @@ class Product {
       'seller': seller,
       'sku': sku,
       'manageInventory': manageInventory,
+      'availableInStock' : availableInStock,
       'soh': soh,
       'reOrderLevel': reOrderLevel,
       'chargeShipping': chargeShipping,

@@ -1,6 +1,3 @@
-import 'dart:math';
-
-import 'package:bha_app_vendor/firebase_services.dart';
 import 'package:bha_app_vendor/provider/product_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -13,8 +10,9 @@ class InventoryTab extends StatefulWidget {
 }
 
 class _InventoryTabState extends State<InventoryTab> with AutomaticKeepAliveClientMixin {
-  final FirebaseServices _services = FirebaseServices();
-  bool? _manageInventory = false;
+  //final FirebaseServices _services = FirebaseServices();
+  bool? _availableInStock = true;
+  //bool? _manageInventory = false;
   var skuControler = TextEditingController(text: DateTime.now().millisecondsSinceEpoch.toString());
 
   @override
@@ -23,7 +21,7 @@ class _InventoryTabState extends State<InventoryTab> with AutomaticKeepAliveClie
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return Consumer<ProductProvider>(builder: (context, provider, _) {
+    return Consumer<ProductProvider>(builder: (context, provider, child) {
       return Padding(
         padding: const EdgeInsets.all(20.0),
         child: ListView(
@@ -38,6 +36,7 @@ class _InventoryTabState extends State<InventoryTab> with AutomaticKeepAliveClie
                   setState(() {
                     provider.getFormData(sku: skuControler.text);
                   });
+                  return;
               },
               onChanged: (value) {
                 setState(() {
@@ -46,6 +45,17 @@ class _InventoryTabState extends State<InventoryTab> with AutomaticKeepAliveClie
               },
             ),
             CheckboxListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Text('Available in stock?', style: TextStyle(color: Colors.grey),),
+                value: _availableInStock,
+                onChanged: (value) {
+                  setState(() {
+                    _availableInStock = value;
+                    provider.getFormData(availableInStock: value);
+                  });
+                }),
+          /*
+          CheckboxListTile(
                 contentPadding: EdgeInsets.zero,
                 title: Text('Manage Inventory?', style: TextStyle(color: Colors.grey),),
                 value: _manageInventory,
@@ -74,6 +84,7 @@ class _InventoryTabState extends State<InventoryTab> with AutomaticKeepAliveClie
                   ),
                 ],
               ),
+            */
           ],
         ),
       );

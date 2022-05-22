@@ -2,7 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 class ProductProvider with ChangeNotifier {
-  Map<String, dynamic>? productData = {'approved': false};
+  Map<String, dynamic>? productData = {'approved': false,
+    'sku': DateTime.now().millisecondsSinceEpoch.toString(),
+    'availableInStock': true,
+    'manageInventory': false,
+    'chargeShipping': false,
+  };
   XFile? prodImage;
 
   getFormData(
@@ -18,6 +23,7 @@ class ProductProvider with ChangeNotifier {
       String? subCategory,
       Map<String, dynamic>? seller,
       String? sku,
+        bool? availableInStock,
         bool? manageInventory,
         int? soh,
         int? reOrderLevel,
@@ -61,6 +67,9 @@ class ProductProvider with ChangeNotifier {
     if (sku != null) {
       productData!['sku'] = sku;
     }
+    if (availableInStock != null) {
+      productData!['availableInStock'] = availableInStock;
+    }
     if (manageInventory != null) {
       productData!['manageInventory'] = manageInventory;
     }
@@ -85,6 +94,11 @@ class ProductProvider with ChangeNotifier {
   clearProductData() {
     productData!.clear();
     productData!['approved']=false;
+    productData!['availableInStock']=true;
+    productData!['sku'] = DateTime.now().millisecondsSinceEpoch.toString();
+    productData!['availableInStock'] = true;
+    productData!['manageInventory'] =  false;
+    productData!['chargeShipping'] =  false;
     prodImage = null;
     notifyListeners();
   }

@@ -26,7 +26,7 @@ class _GeneralTabState extends State<GeneralTab>
   final FirebaseServices _services = FirebaseServices();
   final List<String> _categories = [];
   String? selectedCategory;
-  String? taxStatus = 'Non Taxable';
+  String? taxStatus;
   String? taxPercent;
   String? priceUnit;
 
@@ -254,6 +254,7 @@ class _GeneralTabState extends State<GeneralTab>
                       provider.getFormData(
                         productName: value,
                       );
+                      provider.getFormData(category: selectedCategory);
                     });
                   }),
               //Description

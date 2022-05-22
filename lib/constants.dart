@@ -32,4 +32,4 @@ String termsAndConditions = 'I hereby confirm the following: \n\n'
     'technical issues and App may have to be shut down till the technical problems are resolved.\n'
     '5. Subject to "Karnataka" jurisdiction only.';
 
-Map<String, double> TAXPERCENTS = {'GST-5%': 5, 'GST-12%': 12, 'GST-18%': 18, 'GST-28%': 28};
+Map<String, double> TAXPERCENTS = {'GST-5%': 5.0, 'GST-12%': 12.0, 'GST-18%': 18.0, 'GST-28%': 28.0};
