@@ -130,10 +130,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     return image;
   }
 
-  Map timeOfDayToFirebase(TimeOfDay timeOfDay) {
-    return {'hour': timeOfDay.hour, 'minute': timeOfDay.minute};
-  }
-
   TimeOfDay firebaseToTimeOfDay(Map data) {
     return TimeOfDay(hour: data['hour'], minute: data['minute']);
   }
@@ -191,8 +187,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         'shopState': 'NEW',
         'approved': false,
         'time': DateTime.now(),
-        'openTime': timeOfDayToFirebase(openTime),
-        'closeTime': timeOfDayToFirebase(closeTime),
+        'openTime': _services.timeOfDayToFirebase(openTime),
+        'closeTime': _services.timeOfDayToFirebase(closeTime),
         'weeklyOffDay': _weeklyOffDay,
         'regPaymentId': _regPaymentId ?? 'noPaymentId',
         'regPaymentSig': _regPaymentSig ?? 'noPaymentSig',
@@ -628,7 +624,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     const SizedBox(
                       height: 10,
                     ),
-
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       mainAxisSize: MainAxisSize.max,
@@ -646,13 +641,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                               ),
                               child: Text(
                                   _convertTo12Hours(openTime),
-                                /*openTime.hour.toString().padLeft(2, "0") +
-                                    ":" +
-                                    openTime.minute.toString().padLeft(2, "0"),*/
                                 style: const TextStyle(color: Colors.white),
                               ),
                             ),
-                            //Text(openTime.hour.toString() + ":" + openTime.minute.toString()),
                             const Text("Open"),
                           ],
                         ),
@@ -670,9 +661,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                                   _convertTo12Hours(closeTime),
                                 style: const TextStyle(color: Colors.white),
                               ),
-                              //child: const Text("Close"),
                             ),
-                            //Text(closeTime.hour.toString() + ":" + closeTime.minute.toString()),
                             const Text("Close"),
                           ],
                         ),

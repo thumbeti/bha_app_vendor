@@ -1,3 +1,4 @@
+import 'package:bha_app_vendor/screens/vendor_edit.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -72,6 +73,26 @@ class CustomDrawer extends StatelessWidget {
                   _menu(
                     menuTitle: 'Add Product',
                     route: AddProductScreen.id,
+                  ),
+                ],
+              ),
+              ExpansionTile(
+                leading: Icon(Icons.account_tree_outlined),
+                title: Text('Vendor'),
+                children: [
+                  ListTile(
+                    leading: Icon(Icons.account_circle_rounded),
+                    title: Text('Vendor Info'),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (BuildContext context) => VendorEditScreen(
+                            vendor: _vendorData.vendor,
+                          ),
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),

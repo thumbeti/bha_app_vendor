@@ -172,27 +172,32 @@ class FirebaseServices{
     return f.format(number);
   }
 
-  Widget formField(
-      {TextEditingController? controller,
-        String? label,
-        TextInputType? inputType,
-        void Function(String)? onChanged,
-        int? minLine,
-        int? maxLine}) {
+  Widget formField({
+    TextEditingController? controller,
+    String? label,
+    String? initValue,
+    TextInputType? inputType,
+    void Function(String)? onChanged,
+    String? prefix,
+    int? maxLength,
+    String? Function(String?)? validator,
+  }) {
     return TextFormField(
       controller: controller,
-      autovalidateMode: AutovalidateMode.onUserInteraction,
       keyboardType: inputType,
+      initialValue: initValue,
       decoration: InputDecoration(
-        label: Text(label!),
+        labelText: label,
+        prefix: Text(prefix ?? ''),
       ),
-      validator: (value) {
-        if (value!.isEmpty) { return label;}
-        //return value==null? 'Enter value':null;
-      },
+      //maxLength: maxLength,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
+      validator: validator,
       onChanged: onChanged,
-      minLines: minLine,
-      maxLines: maxLine,
     );
+  }
+
+  Map timeOfDayToFirebase(TimeOfDay timeOfDay) {
+    return {'hour': timeOfDay.hour, 'minute': timeOfDay.minute};
   }
 }

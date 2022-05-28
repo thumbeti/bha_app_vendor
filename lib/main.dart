@@ -7,6 +7,7 @@ import 'package:bha_app_vendor/screens/home_screen.dart';
 import 'package:bha_app_vendor/screens/login_screen.dart';
 import 'package:bha_app_vendor/screens/on_boarding_screen.dart';
 import 'package:bha_app_vendor/screens/product_screen.dart';
+import 'package:bha_app_vendor/screens/vendor_edit.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -49,6 +50,7 @@ class MyApp extends StatelessWidget {
         HomeScreen.id: (context) => const HomeScreen(),
         ProductScreen.id: (context) => const ProductScreen(),
         AddProductScreen.id: (context) => const AddProductScreen(),
+        VendorEditScreen.id: (context) => const VendorEditScreen(),
       },
       builder: EasyLoading.init(),
     );

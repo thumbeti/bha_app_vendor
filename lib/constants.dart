@@ -1,6 +1,7 @@
 List<String> rentalSubModes = ['Monthly', 'Daily'];
 
 List<String> weeklyOffDay = ['SAT', 'SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI'];
+List<String> shopStates = ['NEW', 'OPEN', 'CLOSED'];
 
 const String CALL_VISIT = 'Call/Visit to check';
 

@@ -39,7 +39,7 @@ class _ShippingTabState extends State<ShippingTab> with AutomaticKeepAliveClient
             if(_chargeShpping == true)
               _service.formField(
                 label: 'Shipping charge',
-                inputType: TextInputType.number,
+                  inputType: TextInputType.number,
                 onChanged: (value) {
                   provider.getFormData(shippingCharge: int.parse(value));
                 }
