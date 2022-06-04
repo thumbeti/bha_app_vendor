@@ -79,7 +79,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
                   if (_formKey.currentState!.validate()) {
                     _provider.getFormData(seller: {
                       'name': _vendor.vendor!.shopName,
-                      'uid': _services.user!.uid
+                      'uid': _services.user!.uid,
+                      'vid': _vendor.vendor!.vendorId,
                     });
                     EasyLoading.show(status: 'Please wait...');
                     _services

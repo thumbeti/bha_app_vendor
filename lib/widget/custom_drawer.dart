@@ -1,8 +1,10 @@
+import 'package:bha_app_vendor/screens/landing_screen.dart';
 import 'package:bha_app_vendor/screens/vendor_edit.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../firebase_services.dart';
 import '../provider/vendor_provider.dart';
 import '../screens/add_product_screen.dart';
 import '../screens/home_screen.dart';
@@ -14,6 +16,7 @@ class CustomDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    FirebaseServices _services = FirebaseServices();
     final _vendorData = Provider.of<VendorProvider>(context);
 
     Widget _menu({String? menuTitle, IconData? icon, String? route}) {
@@ -84,12 +87,27 @@ class CustomDrawer extends StatelessWidget {
                     leading: Icon(Icons.account_circle_rounded),
                     title: Text('Vendor Info'),
                     onTap: () {
+                      _vendorData.getVendorData();
                       Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (BuildContext context) => VendorEditScreen(
                             vendor: _vendorData.vendor,
                           ),
+                        ),
+                      );
+                    },
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.account_circle_rounded),
+                    title: Text('In active Vendor (TEST)'),
+                    onTap: () {
+                      _services.vendors.doc(_services.user!.uid).update({ 'approved': false,});
+                      _services.vendors.doc(_services.user!.uid).update({ 'loadDefaultProducts': true,});
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (BuildContext context) => LandingScreen(),
                         ),
                       );
                     },

@@ -1,9 +1,12 @@
+import 'dart:io';
+
 import 'package:bha_app_vendor/model/vendor.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:in_validator/gst_validator.dart';
 import 'package:provider/provider.dart';
 
@@ -23,6 +26,8 @@ class VendorEditScreen extends StatefulWidget {
 
 class _VendorEditScreenState extends State<VendorEditScreen> {
   final FirebaseServices _services = FirebaseServices();
+  final ImagePicker _picker = ImagePicker();
+
   final _formKey = GlobalKey<FormState>();
   bool _editable = true;
   final _shopName = TextEditingController();
@@ -38,6 +43,9 @@ class _VendorEditScreenState extends State<VendorEditScreen> {
   String? _weeklyOffDay = weeklyOffDay[0];
   String? _shopState = shopStates[0];
 
+  XFile? _shopImage;
+  String? _shopImageUrl;
+
   @override
   void initState() {
     setState(() {
@@ -47,15 +55,22 @@ class _VendorEditScreenState extends State<VendorEditScreen> {
       _whatsAppNum.text = widget.vendor!.whatsAppNum!;
       _email.text = widget.vendor!.email!;
       _gstNumber.text = widget.vendor!.gstNumber!;
-      openTime = TimeOfDay(hour: widget.vendor!.openTime!['hour'],
-                            minute: widget.vendor!.openTime!['minute']);
-      closeTime = TimeOfDay(hour: widget.vendor!.closeTime!['hour'],
-                            minute: widget.vendor!.closeTime!['minute']);
+      openTime = TimeOfDay(
+          hour: widget.vendor!.openTime!['hour'],
+          minute: widget.vendor!.openTime!['minute']);
+      closeTime = TimeOfDay(
+          hour: widget.vendor!.closeTime!['hour'],
+          minute: widget.vendor!.closeTime!['minute']);
       _weeklyOffDay = widget.vendor!.weeklyOffDay;
       _shopState = widget.vendor!.shopState!;
       _address.text = widget.vendor!.address!;
     });
     super.initState();
+  }
+
+  Future<XFile?> _pickImage() async {
+    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+    return image;
   }
 
   Future<void> _selectTime(BuildContext context, String openClose) async {
@@ -78,10 +93,43 @@ class _VendorEditScreenState extends State<VendorEditScreen> {
 
   String _convertTo12Hours(TimeOfDay selectedTime) {
     DateTime tempDate = DateFormat("hh:mm").parse(
-        selectedTime.hour.toString() +
-            ":" + selectedTime.minute.toString());
+        selectedTime.hour.toString() + ":" + selectedTime.minute.toString());
     var dateFormat = DateFormat("h:mm a");
     return dateFormat.format(tempDate);
+  }
+
+  updateVendorWithPic(String? uid) {
+    EasyLoading.show(status: 'Please wait..');
+    _services
+        .uploadImage(_shopImage, 'vendors/${_services.user!.uid}/shopImage.jpg')
+        .then((String? url) {
+      if (url != null) {
+        setState(() {
+          _shopImageUrl = url;
+        });
+      }
+    }).then((value) async {
+      await _services.vendors.doc(uid).update({
+        'shopImage': _shopImageUrl,
+        'shopName': _shopName.text,
+        'ownerName': _ownerName.text,
+        'mobile': _contactNumber.text,
+        'whatsAppNum': _whatsAppNum.text,
+        'email': _email.text,
+        'openTime': _services.timeOfDayToFirebase(openTime),
+        'closeTime': _services.timeOfDayToFirebase(closeTime),
+        'weeklyOffDay': _weeklyOffDay,
+        'shopState': _shopState,
+        'gstNumber': _gstNumber.text,
+        'address': _address.text,
+      }).then((value) async {
+        setState(() {
+          _editable = true;
+        });
+        EasyLoading.dismiss();
+      });
+    });
+    return;
   }
 
   updateVendor(String? uid) {
@@ -135,7 +183,9 @@ class _VendorEditScreenState extends State<VendorEditScreen> {
                       child: Text('Save'),
                       onPressed: () {
                         if (_formKey.currentState!.validate()) {
-                          updateVendor(_vendorData.vendor!.uid!);
+                          _shopImage == null
+                              ? updateVendor(_vendorData.vendor!.uid!)
+                              : updateVendorWithPic(_vendorData.vendor!.uid!);
                         }
                       },
                     ),
@@ -150,11 +200,33 @@ class _VendorEditScreenState extends State<VendorEditScreen> {
                 absorbing: _editable,
                 child: Column(
                   children: [
-                    Container(
-                      height: 150,
-                      width: MediaQuery.of(context).size.width,
-                      child: CachedNetworkImage(
-                          imageUrl: _vendorData.vendor!.shopImage!),
+                    InkWell(
+                      onTap: () {
+                        _pickImage().then((value) {
+                          setState(() {
+                            _shopImage = value;
+                          });
+                        });
+                      },
+                      child: _shopImage == null
+                          ? Container(
+                              height: 240,
+                              width: MediaQuery.of(context).size.width,
+                              child: CachedNetworkImage(
+                                  imageUrl: _vendorData.vendor!.shopImage!),
+                            )
+                          : Container(
+                              height: 240,
+                              decoration: BoxDecoration(
+                                color: Colors.blue,
+                                image: DecorationImage(
+                                  image: FileImage(
+                                    File(_shopImage!.path),
+                                  ),
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            ),
                     ),
                     SizedBox(
                       height: 10,
@@ -193,7 +265,7 @@ class _VendorEditScreenState extends State<VendorEditScreen> {
                         if (value!.isEmpty) {
                           return 'Enter GST Number';
                         }
-                        if(value.isNotEmpty) {
+                        if (value.isNotEmpty) {
                           final bool isValid = GSTValidator().isValid(value);
                           if (isValid == false) {
                             return 'Invalid GST Number';
@@ -228,7 +300,7 @@ class _VendorEditScreenState extends State<VendorEditScreen> {
                         inputType: TextInputType.emailAddress,
                         maxLength: 100,
                         validator: (value) {
-                          if(value!.isNotEmpty) {
+                          if (value!.isNotEmpty) {
                             final bool isValid = EmailValidator.validate(value);
                             if (isValid == false) {
                               return 'Invalid Email';
@@ -293,12 +365,12 @@ class _VendorEditScreenState extends State<VendorEditScreen> {
                               },
                               hint: const Text('Select day'),
                               items: weeklyOffDay.map<DropdownMenuItem<String>>(
-                                      (String value) {
-                                    return DropdownMenuItem<String>(
-                                      value: value,
-                                      child: Text(value),
-                                    );
-                                  }).toList(),
+                                  (String value) {
+                                return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Text(value),
+                                );
+                              }).toList(),
                               onChanged: (String? value) {
                                 setState(() {
                                   _weeklyOffDay = value;
@@ -321,12 +393,12 @@ class _VendorEditScreenState extends State<VendorEditScreen> {
                               },
                               hint: const Text('Select state'),
                               items: shopStates.map<DropdownMenuItem<String>>(
-                                      (String value) {
-                                    return DropdownMenuItem<String>(
-                                      value: value,
-                                      child: Text(value),
-                                    );
-                                  }).toList(),
+                                  (String value) {
+                                return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Text(value),
+                                );
+                              }).toList(),
                               onChanged: (String? value) {
                                 setState(() {
                                   _shopState = value;

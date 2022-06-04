@@ -130,8 +130,7 @@ class _GeneralTabState extends State<GeneralTab>
           provider.getFormData(taxStatus: newValue);
         });
       },
-      items: ['Non Taxable', 'Taxable']
-          .map<DropdownMenuItem<String>>((String value) {
+      items: TAX_STATUS.map<DropdownMenuItem<String>>((String value) {
         return DropdownMenuItem<String>(
           value: value,
           child: Text(value),

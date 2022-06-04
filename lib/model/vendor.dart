@@ -15,11 +15,14 @@ class Vendor {
       this.uid,
       this.shopState,
       this.approved,
+      this.loadDefaultProducts,
       this.shopImage,
       this.time,
       this.openTime,
       this.closeTime,
       this.weeklyOffDay,
+      this.shopType,
+      this.loadProductType,
       this.regPaymentId,
       this.regPaymentSig,
       this.vendorId,
@@ -48,11 +51,14 @@ class Vendor {
     uid: json['uid']! as String,
     shopState: json['shopState']! as String,
     approved: json['approved']! as bool,
+    loadDefaultProducts: json['loadDefaultProducts'] as bool,
     shopImage: json['shopImage']! as String,
     time: json['time']! as Timestamp,
     openTime: json['openTime']! as Map,
     closeTime: json['closeTime']! as Map,
     weeklyOffDay: json['weeklyOffDay']! as String,
+    shopType: json['shopType']! as String,
+    loadProductType: json['loadProductType']! as String,
     regPaymentId: json['regPaymentId']! as String,
     regPaymentSig: json['regPaymentSig']! as String,
     vendorId: json['vendorId']! as String,
@@ -80,10 +86,13 @@ class Vendor {
   final String? uid;
   final String? shopState;
   final bool? approved;
+  final bool? loadDefaultProducts;
   final Timestamp? time;
   final Map? openTime;
   final Map? closeTime;
   final String? weeklyOffDay;
+  final String? shopType;
+  final String? loadProductType;
   final String? regPaymentId;
   final String? regPaymentSig;
   final String? vendorId;
@@ -111,11 +120,14 @@ class Vendor {
       'uid': uid,
       'shopState': shopState,
       'approved': approved,
+      'loadDefaultProducts' : loadDefaultProducts,
       'shopImage': shopImage,
       'time': time,
       'openTime': openTime,
       'closeTime': closeTime,
       'weeklyOffDay': weeklyOffDay,
+      'shopType': shopType,
+      'loadProductType': loadProductType,
       'regPaymentId': regPaymentId?? '',
       'regPaymentSig': regPaymentSig?? '',
       'vendorId': vendorId,

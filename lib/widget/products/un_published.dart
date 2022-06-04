@@ -12,6 +12,7 @@ class UnPublishedProduct extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FirestoreQueryBuilder<Product>(
+      pageSize: 100,
       query: productQuery(shopName, false),
       builder: (context, snapshot, _) {
         if (snapshot.isFetching) {

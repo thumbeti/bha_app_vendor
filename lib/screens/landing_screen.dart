@@ -34,6 +34,11 @@ class LandingScreen extends StatelessWidget {
           }
           Vendor vendor = Vendor.fromJson(snapshot.data!.data() as Map<String, dynamic>);
           if(vendor.approved == true) {
+            if(vendor.loadDefaultProducts == true) {
+              // Loading default products
+              _services.loadCommonProducts(vendor);
+              _services.vendors.doc(_services.user!.uid).update({ 'loadDefaultProducts': false,});
+            }
             return const HomeScreen();
           }
           return Center(
@@ -73,6 +78,28 @@ class LandingScreen extends StatelessWidget {
                           builder: (BuildContext context) => const LoginScreen(),
                         ),);
                       });
+                    },
+                  ),
+                  const SizedBox(
+                    height: 50,
+                  ),
+                  OutlinedButton(
+                    style: ButtonStyle(
+                      shape: MaterialStateProperty.all(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                    ),
+                    child: Text(
+                      'Siva, Approve vendor *${vendor.ownerName!}*..',
+                      style: TextStyle(fontSize: 20),
+                    ),
+                    onPressed: () {
+                      //load default products...
+                      //_services.loadCommonProducts(vendor);
+                      //TODO: Remove this once tested.
+                      _services.vendors.doc(_services.user!.uid).update({ 'approved': true,});
                     },
                   )
                 ],

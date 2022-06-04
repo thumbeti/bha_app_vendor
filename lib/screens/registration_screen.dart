@@ -60,6 +60,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   String? _bName;
   //String? _rentalSubMode = rentalSubModes[1];
   String? _weeklyOffDay = weeklyOffDay[0];
+  String? _shopType = shopTypes[0];
+  String? _loadProductType = loadProductTypes[1];
   XFile? _shopImage;
   String? _shopImageUrl;
 
@@ -152,11 +154,11 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
   String genVendorId() {
     var r = Random();
-    const _chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
+    const _chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789';
     //String vid = cityValue!.substring(0,3)+'_'+List.generate(5, (index) => _chars[r.nextInt(_chars.length)]).join();
     String vid = _pinCode.text +
         '_' +
-        List.generate(4, (index) => _chars[r.nextInt(_chars.length)]).join();
+        List.generate(3, (index) => _chars[r.nextInt(_chars.length)]).join();
     return vid;
   }
 
@@ -186,10 +188,13 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         'uid': _services.user!.uid,
         'shopState': 'NEW',
         'approved': false,
+        'loadDefaultProducts' : true,
         'time': DateTime.now(),
         'openTime': _services.timeOfDayToFirebase(openTime),
         'closeTime': _services.timeOfDayToFirebase(closeTime),
         'weeklyOffDay': _weeklyOffDay,
+        'shopType' : _shopType,
+        'loadProductType' : _loadProductType,
         'regPaymentId': _regPaymentId ?? 'noPaymentId',
         'regPaymentSig': _regPaymentSig ?? 'noPaymentSig',
         'vendorId': genVendorId(),
@@ -717,6 +722,84 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                               onChanged: (String? value) {
                                 setState(() {
                                   _weeklyOffDay = value;
+                                });
+                              }),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        const Text('Shop Type : '),
+                        Expanded(
+                          child: DropdownButtonFormField(
+                              value: _shopType,
+                              validator: (value) {
+                                if (value == null) {
+                                  return 'Select shop type';
+                                }
+                              },
+                              hint: const Text('Select shop type'),
+                              items: shopTypes.map<DropdownMenuItem<String>>(
+                                      (String value) {
+                                    return DropdownMenuItem<String>(
+                                      value: value,
+                                      child: Text(value),
+                                    );
+                                  }).toList(),
+                              onChanged: (String? value) {
+                                setState(() {
+                                  _shopType = value;
+                                  // Meat seller
+                                  if(_shopType == shopTypes[0]) {
+                                    _loadProductType = loadProductTypes[1];
+                                  }
+                                  // Groceries
+                                  if(_shopType == shopTypes[1]) {
+                                    _loadProductType = loadProductTypes[5];
+                                  }
+                                  // Service provider
+                                  if(_shopType == shopTypes[2]) {
+                                    _loadProductType = loadProductTypes[6];
+                                  }
+                                });
+                              }),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        const Text('Load Products: '),
+                        Expanded(
+                          child: DropdownButtonFormField(
+                              value: _loadProductType,
+                              validator: (value) {
+                                if (value == null) {
+                                  return 'Load Products.';
+                                }
+                              },
+                              hint: const Text('Load Products.'),
+                              items: loadProductTypes.map<DropdownMenuItem<String>>(
+                                      (String value) {
+                                    return DropdownMenuItem<String>(
+                                      value: value,
+                                      child: Text(value),
+                                    );
+                                  }).toList(),
+                              onChanged: (String? value) {
+                                setState(() {
+                                  _loadProductType = value;
+
+                                  // Groceries
+                                  if(_loadProductType == loadProductTypes[5]) {
+                                    _shopType = shopTypes[1];
+                                  } else if(_loadProductType == loadProductTypes[6]) {
+                                    // Service provider
+                                    _shopType = shopTypes[2];
+                                  } else {
+                                    // Meat Seller
+                                    _shopType = shopTypes[0];
+                                  }
+
                                 });
                               }),
                         ),

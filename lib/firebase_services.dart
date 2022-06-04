@@ -4,10 +4,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:whatsapp_unilink/whatsapp_unilink.dart';
 import 'package:intl/intl.dart';
+
+import 'constants.dart';
+import 'model/vendor.dart';
 
 class FirebaseServices{
   User? user = FirebaseAuth.instance.currentUser;
@@ -27,6 +31,12 @@ class FirebaseServices{
     return downloadURL;
   }
 
+  Future<String> getImageURL(String? reference) async {
+    firebase_storage.Reference ref = firebase_storage.FirebaseStorage.instance.ref(reference);
+    String downloadURL = await ref.getDownloadURL();
+    return downloadURL;
+  }
+
   Future<void> addVendor({Map<String, dynamic>? data}) {
     // Call the user's CollectionReference to add a new user
     return vendors.doc(user!.uid)
@@ -37,11 +47,54 @@ class FirebaseServices{
 
   Future<void> saveToDB({Map<String, dynamic>? data, BuildContext? context}) {
     scaffold(context,"Saving..");
-    print(data);
     return products
         .add(data)
         .then((value) => scaffold(context,"Saved"))
         .catchError((error) => scaffold(context,"Failed to save: $error"));
+  }
+
+  void loadCommonProducts(Vendor? vendor) async {
+    Map<String, dynamic>? productData = {'approved': false,
+      'availableInStock': true,
+      'manageInventory': false,
+      'chargeShipping': false,
+      'priceUnit': units[0],
+      'taxStatus': TAX_STATUS[0],
+      'category': 'Groceries',
+      'mainCategory': 'Meat',
+      'seller': {
+      'name' : vendor!.shopName,
+      'uid' : user!.uid,
+      'vid' : vendor.vendorId,
+      },
+    };
+    EasyLoading.show(status: 'Loading default products..');
+    //Get all Chicken products.
+    List<Map<String, dynamic>> prodList = getCommonProducts(vendor.loadProductType!);
+    for(Map<String, dynamic> prod in prodList) {
+      if((prod['subCategory'] == 'Chicken') || (prod['subCategory'] == 'Mutton')){
+        continue;
+      }
+      String imageURL = await getImageURL(
+          'products/BhaAppCommonImages/${prod['PicDir']}/${prod['PicName']}');
+
+      productData['sku'] =  DateTime.now().millisecondsSinceEpoch.toString();
+      productData['productName'] = prod['name'];
+      productData['productDescription'] = prod['desc'];
+      productData['productImageUrl'] = imageURL;
+      productData['regularPrice'] = int.parse(prod['KGPrice']);
+      productData['salesPrice'] = int.parse(prod['KGPrice']);
+      productData['subCategory'] = prod['subCategory'];
+
+      if(prod['subCategory'] == 'Fish') {
+        productData['attributes'] = {
+          'type' : prod['fishCategory'],
+        };
+      }
+
+      await products.add(productData);
+    }
+    EasyLoading.dismiss();
   }
 
   scaffold(context, message) {
@@ -106,7 +159,7 @@ class FirebaseServices{
         'MCECHS Layout Phase 1,\n'
         'Dr Shivaram Karanth Nagar,\n'
         'Bangalore 560 077, Karnataka, India,\n'
-        'M: +919071900090, E: info@jiosmart.in, CIN: U74999KA2016PTC095005,\n'
+        'M: +919071900090, E: info@bhaap.com, CIN: U74999KA2016PTC095005,\n'
         'GSTIN: 29AADCJ7541F1ZG,\n'
         'PAN: AADCJ7541F\n\n'
         'INVOICE TO: ${vendorName}\n'
@@ -116,11 +169,11 @@ class FirebaseServices{
         'Client GST No.: ${gstNo}\n\n'
         'BhaApp team thanks you and confirms your registration:\n\n'
         'SNo  Activity description       Amount\n'
-        '1    Registration with BhaApp   Rs. ${regFee}\n'
-        '      CGST @ ${cgst}%           Rs. ${cgstFee}\n'
-        '      SGST @ ${sgst}%           Rs. ${sgstFee}\n'
-        '      IGST @ ${igst}%           Rs. ${igstFee}\n'
-        '      Total                     Rs. ${total}\n'
+        '1      Registration...............Rs. ${regFee}\n'
+        '        CGST @ ${cgst}%...........Rs. ${cgstFee}\n'
+        '        SGST @ ${sgst}%...........Rs. ${sgstFee}\n'
+        '        IGST @ ${igst}%...........Rs. ${igstFee}\n'
+        '        Total.....................Rs. ${total}\n'
         'Rupees Five Hundred and Ninety only.\n\n'
         'Declaration:\n'
         'Certified that all the particulars shown in the above Invoice are true and correct.\n\n'

@@ -64,39 +64,41 @@ class ProductCard extends StatelessWidget {
                                     child: CachedNetworkImage(
                                         imageUrl: product.productImageUrl!),
                                   )),
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(product.productName!),
-                                    Row(
-                                      children: [
-                                        if (product.salesPrice != null)
+                              Flexible(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(product.productName!),
+                                      Row(
+                                        children: [
+                                          if (product.salesPrice != null)
+                                            Text('\u{20B9}${services
+                                                .formattedNumber(product.salesPrice)}'
+                                                ),
+                                          SizedBox(
+                                            width: 10,
+                                          ),
                                           Text('\u{20B9}${services
-                                              .formattedNumber(product.salesPrice)}'
-                                              ),
-                                        SizedBox(
-                                          width: 10,
-                                        ),
-                                        Text('\u{20B9}${services
-                                            .formattedNumber(product.regularPrice)}',
-                                          style: TextStyle(
-                                              decoration: product.salesPrice != null
-                                                  ? TextDecoration.lineThrough
-                                                  : null,
-                                              color: Colors.red),
-                                        ),
-                                        SizedBox(
-                                          width: 10,
-                                        ),
-                                        Text(
-                                          '${discount.toInt()}%',
-                                          style: TextStyle(color: Colors.green),
-                                        )
-                                      ],
-                                    ),
-                                  ],
+                                              .formattedNumber(product.regularPrice)}',
+                                            style: TextStyle(
+                                                decoration: product.salesPrice != null
+                                                    ? TextDecoration.lineThrough
+                                                    : null,
+                                                color: Colors.red),
+                                          ),
+                                          SizedBox(
+                                            width: 10,
+                                          ),
+                                          Text(
+                                            '${discount.toInt()}%',
+                                            style: TextStyle(color: Colors.green),
+                                          )
+                                        ],
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ],
