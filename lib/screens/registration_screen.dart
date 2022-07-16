@@ -32,7 +32,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   static List<String?> deliveryAreasList = [null];
 
   late Razorpay _razorpay;
-  bool testMode = true;
+  bool testMode = false;
   int modeClickCount = 0;
 
   int cgst = 9;
@@ -48,13 +48,16 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
   final _shopName = TextEditingController();
   final _ownerName = TextEditingController();
-  final _gstNumber = TextEditingController(text: '29AADCJ7541F1ZG');
+  final _gstNumber = TextEditingController();
   final _contactNumber = TextEditingController();
   final _whatsAppNumber = TextEditingController();
   final _email = TextEditingController();
   final _pinCode = TextEditingController();
   final _address = TextEditingController();
   final _repID = TextEditingController();
+  final _bankAccountNo = TextEditingController();
+  final _bankName = TextEditingController();
+  final _IFSCcode = TextEditingController();
   bool whatsAppNumEntered = false;
 
   String? _bName;
@@ -65,12 +68,23 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   XFile? _shopImage;
   String? _shopImageUrl;
 
+  XFile? _GSTImage;
+  String? _GSTImageUrl;
+  XFile? _licenseImage;
+  String? _licenseImageUrl;
+  XFile? _aadharImage;
+  String? _aadharImageUrl;
+  XFile? _chequeImage;
+  String? _chequeImageUrl;
+
   String? countryValue;
   String? stateValue;
   String? cityValue;
 
   String? _regPaymentId;
   String? _regPaymentSig;
+
+  String? _vendorId;
 
   TimeOfDay selectedTime = TimeOfDay.now();
   TimeOfDay openTime = const TimeOfDay(hour: 8, minute: 0);
@@ -165,67 +179,125 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   _saveToDB() {
     EasyLoading.show(status: 'Please wait..');
     _services
-        .uploadImage(_shopImage, 'vendors/${_services.user!.uid}/shopImage.jpg')
+        .uploadImage(_chequeImage, 'vendors/${_services.user!.uid}/BankChequeImage.jpg')
         .then((String? url) {
       if (url != null) {
         setState(() {
-          _shopImageUrl = url;
+          _chequeImageUrl = url;
         });
       }
     }).then((value) async {
-      await _services.addVendor(data: {
-        'shopImage': _shopImageUrl,
-        'shopName': _shopName.text,
-        'ownerName': _ownerName.text,
-        'gstNumber': _gstNumber.text,
-        'mobile': '+91${_contactNumber.text}',
-        'pinCode': _pinCode.text,
-        'address': _address.text,
-        'email': _email.text,
-        'country': countryValue,
-        'state': stateValue,
-        'city': cityValue,
-        'uid': _services.user!.uid,
-        'shopState': 'NEW',
-        'approved': false,
-        'loadDefaultProducts' : true,
-        'time': DateTime.now(),
-        'openTime': _services.timeOfDayToFirebase(openTime),
-        'closeTime': _services.timeOfDayToFirebase(closeTime),
-        'weeklyOffDay': _weeklyOffDay,
-        'shopType' : _shopType,
-        'loadProductType' : _loadProductType,
-        'regPaymentId': _regPaymentId ?? 'noPaymentId',
-        'regPaymentSig': _regPaymentSig ?? 'noPaymentSig',
-        'vendorId': genVendorId(),
-        'deliveryAreas': deliveryAreasList,
-        'whatsAppNum': '+91${_whatsAppNumber.text}',
-        'representativeID': _repID.text,
-        'termsAndConditions': termsAndConditions,
-        'cgst' : cgst.toDouble(),
-        'sgst' : sgst.toDouble(),
-        'igst' : igst.toDouble(),
-        'invoice': invoice,
-        //'tinNumber':_gstNumber.text.isEmpty? null : _gstNumber.text,
+      _services
+          .uploadImage(
+          _aadharImage, 'vendors/${_services.user!.uid}/AadharImage.jpg')
+          .then((String? url) {
+        if (url != null) {
+          setState(() {
+            _aadharImageUrl = url;
+          });
+        }
       }).then((value) async {
-        EasyLoading.dismiss();
-        if ((_email.text.isNotEmpty == true) &&
-            (_email.text.length > 5)){
-          print('SIVA: email details2 : ' + _email.text);
-          _services.sendEmailForRegistration(
-            vendorEmail: _email.text,
-            msg: invoice,
-          );
-        }
-        if (_whatsAppNumber.text.isNotEmpty == true) {
-          await _services.launchWhatsApp(
-              phoneNumber: '+91${_whatsAppNumber.text}', msg: invoice);
-        }
-        return Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (BuildContext context) => const LandingScreen(),
-          ),
-        );
+        _services
+            .uploadImage(
+            _licenseImage, 'vendors/${_services.user!.uid}/LicenseImage.jpg')
+            .then((String? url) {
+          if (url != null) {
+            setState(() {
+              _licenseImageUrl = url;
+            });
+          }
+        }).then((value) async {
+          _services
+              .uploadImage(
+              _GSTImage, 'vendors/${_services.user!.uid}/GSTImage.jpg')
+              .then((String? url) {
+            if (url != null) {
+              setState(() {
+                _GSTImageUrl = url;
+              });
+            }
+          }).then((value) async {
+            _services
+                .uploadImage(
+                _shopImage, 'vendors/${_services.user!.uid}/shopImage.jpg')
+                .then((String? url) {
+              if (url != null) {
+                setState(() {
+                  _shopImageUrl = url;
+                });
+              }
+            }).then((value) async {
+              await _services.addVendor(data: {
+                'shopImage': _shopImageUrl,
+                'shopName': _shopName.text,
+                'ownerName': _ownerName.text,
+                'gstNumber': _gstNumber.text,
+                'gstImage': _GSTImageUrl,
+                'licenseImage': _licenseImageUrl,
+                'aadharImage': _aadharImageUrl,
+                'bankDetails': {
+                  'cheque' : _chequeImageUrl,
+                  'accountNo' : _bankAccountNo.text,
+                  'bankName' : _bankName.text,
+                  'IFSCcode' : _IFSCcode.text,
+                },
+                'mobile': '+91${_contactNumber.text}',
+                'pinCode': _pinCode.text,
+                'address': _address.text,
+                'email': _email.text,
+                'country': countryValue,
+                'state': stateValue,
+                'city': cityValue,
+                'uid': _services.user!.uid,
+                'shopState': testMode ? "TEST" : "NEW",
+                'approved': true,
+                'loadDefaultProducts': true,
+                'time': DateTime.now(),
+                'openTime': _services.timeOfDayToFirebase(openTime),
+                'closeTime': _services.timeOfDayToFirebase(closeTime),
+                'weeklyOffDay': _weeklyOffDay,
+                'shopType': _shopType,
+                'loadProductType': _loadProductType,
+                'regPaymentId': _regPaymentId ?? 'noPaymentId',
+                'regPaymentSig': _regPaymentSig ?? 'noPaymentSig',
+                'vendorId': _vendorId,
+                'deliveryAreas': deliveryAreasList,
+                'whatsAppNum': '+91${_whatsAppNumber.text}',
+                'representativeID': _repID.text,
+                'termsAndConditions': termsAndConditions,
+                'cgst': cgst.toDouble(),
+                'sgst': sgst.toDouble(),
+                'igst': igst.toDouble(),
+                'invoice': invoice,
+                //'tinNumber':_gstNumber.text.isEmpty? null : _gstNumber.text,
+              }).then((value) async {
+                EasyLoading.dismiss();
+                if ((_email.text.isNotEmpty == true) &&
+                    (_email.text.length > 5)) {
+                  print('SIVA: email details2 : ' + _email.text);
+                  _services.sendEmailForRegistration(
+                    vendorEmail: _email.text,
+                    msg: invoice,
+                  );
+                } else {
+                  _services.sendEmailForRegistration(
+                    vendorEmail: 'info@bhaap.com',
+                    msg: invoice,
+                  );
+                }
+                if (_whatsAppNumber.text.isNotEmpty == true) {
+                  await _services.launchWhatsApp(
+                      phoneNumber: '+91${_whatsAppNumber.text}', msg: invoice);
+                }
+                return Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(
+                    builder: (BuildContext context) => const LandingScreen(),
+                  ),
+                );
+              });
+            });
+          });
+        });
       });
     });
     return;
@@ -298,6 +370,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         msg: "SUCCESS: " + response.paymentId!,
         toastLength: Toast.LENGTH_SHORT);
 
+    setState(() {
+      _vendorId = genVendorId();
+    });
     invoice = _services.formInvoice(
       vendorName: _ownerName.text,
       address: _address.text,
@@ -311,6 +386,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       cgst: cgst,
       sgst: sgst,
       igst: igst,
+      vendorId: _vendorId,
     );
     _saveToDB();
   }
@@ -391,7 +467,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                             height: 200,
                             child: TextButton(
                               child: Center(
-                                child: Text('Tap to add shop image.',
+                                child: Text('* Tap to add shop image.',
                                     style: TextStyle(
                                         color: Colors.grey.shade800,
                                         fontSize: 15)),
@@ -528,7 +604,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   children: [
                     _formField(
                         controller: _shopName,
-                        label: 'Shop Name',
+                        label: '* Shop Name',
                         type: TextInputType.text,
                         maxLength: 100,
                         validator: (value) {
@@ -538,7 +614,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                         }),
                     _formField(
                         controller: _ownerName,
-                        label: 'Owner Name',
+                        label: '* Owner Name',
                         type: TextInputType.text,
                         maxLength: 100,
                         validator: (value) {
@@ -556,10 +632,11 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       maxLengthEnforcement: MaxLengthEnforcement.enforced,
                       autovalidateMode: AutovalidateMode.onUserInteraction,
                       validator: (value) {
+                        /*
                         if (value!.isEmpty) {
                           return 'Enter GST Number';
-                        }
-                        if(value.isNotEmpty) {
+                        } */
+                        if((value != null) && value.isNotEmpty) {
                           final bool isValid = GSTValidator().isValid(value);
                           if (isValid == false) {
                             return 'Invalid GST Number';
@@ -567,11 +644,147 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                         }
                       },
                     ),
+                    Text('GST Cerificate'),
+                    //GST Certificate
+                    _GSTImage == null
+                        ? Container(
+                      color: Colors.blue.shade100,
+                      height: 100,
+                      child: TextButton(
+                        child: Center(
+                          child: Text('Add GST Certificate.',
+                              style: TextStyle(
+                                  color: Colors.grey.shade800, fontSize: 15)),
+                        ),
+                        onPressed: () {
+                          _pickImage().then((value) {
+                            setState(() {
+                              _GSTImage = value;
+                            });
+                          });
+                        },
+                      ),
+                    )
+                        : InkWell(
+                      onTap: () {
+                        _pickImage().then((value) {
+                          setState(() {
+                            _GSTImage = value;
+                          });
+                        });
+                      },
+                      child: Container(
+                        height: 100,
+                        decoration: BoxDecoration(
+                          color: Colors.blue,
+                          image: DecorationImage(
+                            opacity: 100,
+                            image: FileImage(
+                              File(_GSTImage!.path),
+                            ),
+                            //image: FileImage(File(_shopImage!.path),),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Text('Shop license'),
+                    //License Image
+                    _licenseImage == null
+                        ? Container(
+                      color: Colors.blue.shade100,
+                      height: 100,
+                      child: TextButton(
+                        child: Center(
+                          child: Text('Add Shop License.',
+                              style: TextStyle(
+                                  color: Colors.grey.shade800, fontSize: 15)),
+                        ),
+                        onPressed: () {
+                          _pickImage().then((value) {
+                            setState(() {
+                              _licenseImage = value;
+                            });
+                          });
+                        },
+                      ),
+                    )
+                        : InkWell(
+                      onTap: () {
+                        _pickImage().then((value) {
+                          setState(() {
+                            _licenseImage = value;
+                          });
+                        });
+                      },
+                      child: Container(
+                        height: 100,
+                        decoration: BoxDecoration(
+                          color: Colors.blue,
+                          image: DecorationImage(
+                            opacity: 100,
+                            image: FileImage(
+                              File(_licenseImage!.path),
+                            ),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Text('Aadhar card'),
+                    //Aadhar Image
+                    _aadharImage == null
+                        ? Container(
+                      color: Colors.blue.shade100,
+                      height: 100,
+                      child: TextButton(
+                        child: Center(
+                          child: Text('* Add Aadhar card image.',
+                              style: TextStyle(
+                                  color: Colors.grey.shade800, fontSize: 15)),
+                        ),
+                        onPressed: () {
+                          _pickImage().then((value) {
+                            setState(() {
+                              _aadharImage = value;
+                            });
+                          });
+                        },
+                      ),
+                    )
+                        : InkWell(
+                      onTap: () {
+                        _pickImage().then((value) {
+                          setState(() {
+                            _aadharImage = value;
+                          });
+                        });
+                      },
+                      child: Container(
+                        height: 100,
+                        decoration: BoxDecoration(
+                          color: Colors.blue,
+                          image: DecorationImage(
+                            opacity: 100,
+                            image: FileImage(
+                              File(_aadharImage!.path),
+                            ),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                    ),
                     TextFormField(
                       controller: _contactNumber,
                       keyboardType: TextInputType.phone,
                       decoration: InputDecoration(
-                        labelText: 'Contact number',
+                        labelText: '* Contact number',
                         prefix: Text('+91'),
                       ),
                       maxLength: 10,
@@ -702,7 +915,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     ), */
                     Row(
                       children: [
-                        const Text('Weekly off day : '),
+                        const Text('Weekly off day: '),
                         Expanded(
                           child: DropdownButtonFormField(
                               value: _weeklyOffDay,
@@ -729,7 +942,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     ),
                     Row(
                       children: [
-                        const Text('Shop Type : '),
+                        const Text('Shop/Service Type: '),
                         Expanded(
                           child: DropdownButtonFormField(
                               value: _shopType,
@@ -807,7 +1020,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     ),
                     _formField(
                         controller: _address,
-                        label: 'Address',
+                        label: '* Address',
                         type: TextInputType.text,
                         maxLength: 100,
                         validator: (value) {
@@ -926,7 +1139,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     ),
                     _formField(
                         controller: _pinCode,
-                        label: 'PIN code',
+                        label: '* PIN code',
                         type: TextInputType.number,
                         maxLength: 10,
                         validator: (value) {
@@ -934,18 +1147,91 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                             return 'Enter PIN code';
                           }
                         }),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    const Divider(color: Colors.grey,),
+                    Text('Bank Details',
+                      style: TextStyle(fontSize: 20),
+                      textAlign: TextAlign.left,),
+                    //Bank cheque Image
+                    _chequeImage == null
+                        ? Container(
+                      color: Colors.blue.shade100,
+                      height: 100,
+                      child: TextButton(
+                        child: Center(
+                          child: Text('Add Bank cheque image.',
+                              style: TextStyle(
+                                  color: Colors.grey.shade800, fontSize: 15)),
+                        ),
+                        onPressed: () {
+                          _pickImage().then((value) {
+                            setState(() {
+                              _chequeImage = value;
+                            });
+                          });
+                        },
+                      ),
+                    )
+                        : InkWell(
+                      onTap: () {
+                        _pickImage().then((value) {
+                          setState(() {
+                            _chequeImage = value;
+                          });
+                        });
+                      },
+                      child: Container(
+                        height: 100,
+                        decoration: BoxDecoration(
+                          color: Colors.blue,
+                          image: DecorationImage(
+                            opacity: 100,
+                            image: FileImage(
+                              File(_chequeImage!.path),
+                            ),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                    ),
                     _formField(
-                        controller: _repID,
-                        label: 'Representative ID',
+                        controller: _bankAccountNo,
+                        label: 'Bank A/C No',
+                        type: TextInputType.number,
+                    ),
+                    _formField(
+                        controller: _bankName,
+                        label: 'Bank Name',
                         type: TextInputType.text,
-                        maxLength: 100,
-                        validator: (value) {
-                          if (value!.isEmpty) {
-                            return 'Enter Representative ID';
-                          }
-                        }),
+                    ),
+                    _formField(
+                        controller: _IFSCcode,
+                        label: 'IFSC Code',
+                        type: TextInputType.text,
+                    ),
+                    const Divider(color: Colors.grey,),
+                    TextFormField(
+                      controller: _repID,
+                      keyboardType: TextInputType.text,
+                      decoration: InputDecoration(
+                        labelText: '* Representative ID',
+                      ),
+                      maxLength: 4,
+                      maxLengthEnforcement: MaxLengthEnforcement.enforced,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return 'Enter Representative ID';
+                        }
+                      },
+                    ),
                   ],
                 ),
+              ),
+              const SizedBox(
+                height: 10,
               ),
               const SizedBox(
                 height: 10,
@@ -975,10 +1261,12 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                         Container(),
                       ],
                     ),
+                    /*
                     Container(
                       child: Text(
                           'This includes One time setup, One T-Shirt,\n4 Posters, and One month rental'),
                     ),
+                     */
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -1087,6 +1375,23 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                         _services.scaffold(context, 'Shop Image not selected');
                         return;
                       }
+                      if (_aadharImage == null) {
+                        _services.scaffold(context, 'Aadhar card not selected');
+                        return;
+                      }
+                      /*
+                      if (_GSTImage == null) {
+                        _services.scaffold(context, 'GST certificate not selected');
+                        return;
+                      }
+                      if (_licenseImage == null) {
+                        _services.scaffold(context, 'Shop license not selected');
+                        return;
+                      }
+                      if (_chequeImage == null) {
+                        _services.scaffold(context, 'Bank cheque not selected');
+                        return;
+                      }*/
                       if (_formKey.currentState!.validate()) {
                         if (countryValue == null ||
                             stateValue == null ||
@@ -1192,11 +1497,10 @@ class _DeliveryAreasState extends State<DeliveryAreas> {
       controller: _nameController,
       onChanged: (v) =>
           _RegistrationScreenState.deliveryAreasList[widget.index] = v,
-      decoration: InputDecoration(hintText: 'Enter delivery area.'),
+      decoration: InputDecoration(hintText: '* Enter delivery area.'),
       validator: (String? v) {
-        print('RAM:<' + v.toString() + '>');
         //if(v!.length < 2) return 'Please enter something valid';
-        if (v!.trim().isEmpty) return 'Please enter something';
+        if (v!.trim().isEmpty) return 'Please enter delivery area';
         return null;
       },
     );

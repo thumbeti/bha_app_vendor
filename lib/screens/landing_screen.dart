@@ -83,6 +83,7 @@ class LandingScreen extends StatelessWidget {
                   const SizedBox(
                     height: 50,
                   ),
+                  /*
                   OutlinedButton(
                     style: ButtonStyle(
                       shape: MaterialStateProperty.all(
@@ -102,6 +103,7 @@ class LandingScreen extends StatelessWidget {
                       _services.vendors.doc(_services.user!.uid).update({ 'approved': true,});
                     },
                   )
+                   */
                 ],
               ),
             ),

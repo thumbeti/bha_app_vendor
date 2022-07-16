@@ -1,6 +1,6 @@
 List<String> rentalSubModes = ['Monthly', 'Daily'];
 
-List<String> weeklyOffDay = ['SAT', 'SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI'];
+List<String> weeklyOffDay = ['SAT', 'SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'NO-OFF'];
 List<String> shopTypes = ['Meat Seller', 'Groceries', 'Service Provider'];
 List<String> loadProductTypes = ['Mutton + Chicken + Fish', 'Mutton + Chicken',
                                   'Mutton', 'Chicken', 'Fish',
@@ -11,10 +11,10 @@ List<String> shopStates = ['NEW', 'OPEN', 'CLOSED'];
 
 const String CALL_VISIT = 'Call/Visit to check';
 
-List<String> units = ['Kg', 'Grm', 'Liter', 'Ml', 'Nos', 'Feet', 'Yard', 'Set' ];
+List<String> units = ['Kg', 'Grm', 'Liter', 'Ml', 'Nos', 'Feet', 'Yard', 'Set', CALL_VISIT ];
 List<String> TAX_STATUS = ['Non Taxable', 'Taxable'];
 
-const double oneTimeRegistrationFee = 500;
+const double oneTimeRegistrationFee = 83.90;
 //const double oneTimeRegistrationFee = 5;
 const int cgst_B = 9;
 const int sgst_B = 9;
@@ -35,7 +35,7 @@ String termsAndConditions = 'I hereby confirm the following: \n\n'
     '2. I will ensure the product/services supplied/provided by me are of the same specifications\n'
     'as mentioned in the portal and I am expecting the payment only after the customer given \n'
     'the confirmation on delivery and product/services satisfied to customer.'
-    '3. Rs 590 (including GST) is charged against the “adding my shop details along with our products /\n'
+    '3. Rs 99 (including GST) is charged against the “adding my shop details along with our products /\n'
     'services to BhaApp” portal. This fee is one time AND non-refundable.\n'
     '4. There may be delay in launching the BhaApp app. Sometimes App may not function due to\n'
     'technical issues and App may have to be shut down till the technical problems are resolved.\n'
@@ -59,7 +59,7 @@ List<Map<String, dynamic>> getCommonProducts(String loadProductType) {
           'KGPrice': '300',
           'PicDir': CHICKEN_PIC_DIR,
           'subCategory': 'Chicken',
-          'PicName': 'WholeChicken_withoutSkinCurryCut_smallPieces.jpg',
+          'PicName': 'Whole chicken  - without skin - curry cut - small pieces.jpeg',
         });
 
     products.add(
@@ -68,7 +68,7 @@ List<Map<String, dynamic>> getCommonProducts(String loadProductType) {
           'KGPrice': '300',
           'PicDir': CHICKEN_PIC_DIR,
           'subCategory': 'Chicken',
-          'PicName': 'WholeChicken_withoutSkinCurryCut_mediumPieces.jpg',
+          'PicName': 'Whole chicken  - without skin - curry cut - medium pieces.jpeg',
         });
 
     products.add(
@@ -77,7 +77,7 @@ List<Map<String, dynamic>> getCommonProducts(String loadProductType) {
           'KGPrice': '300',
           'PicDir': CHICKEN_PIC_DIR,
           'subCategory': 'Chicken',
-          'PicName': 'WholeChicken_withoutSkinCurryCut_largePieces.jpg',
+          'PicName': 'Whole chicken  - without skin - curry cut - large pieces.jpeg',
         });
 
     products.add({ 'name': 'Boneless – medium pieces',
@@ -85,7 +85,7 @@ List<Map<String, dynamic>> getCommonProducts(String loadProductType) {
       'KGPrice': '400',
       'PicDir': CHICKEN_PIC_DIR,
       'subCategory': 'Chicken',
-      'PicName': 'Chicken_boneless_mediumPieces.jpg',
+      'PicName': 'Boneless – medium pieces.jpeg',
     });
 
     products.add({ 'name': 'Chicken - Liver',
@@ -93,7 +93,7 @@ List<Map<String, dynamic>> getCommonProducts(String loadProductType) {
       'KGPrice': '150',
       'PicDir': CHICKEN_PIC_DIR,
       'subCategory': 'Chicken',
-      'PicName': 'Chicken_liver.jpg',
+      'PicName': 'Liver.jpeg',
     });
 
     products.add({ 'name': 'Chicken - Breast Pieces',
@@ -101,7 +101,7 @@ List<Map<String, dynamic>> getCommonProducts(String loadProductType) {
       'KGPrice': '400',
       'PicDir': CHICKEN_PIC_DIR,
       'subCategory': 'Chicken',
-      'PicName': 'Chicken_breastPieces.jpg',
+      'PicName': 'Breast Pieces.jpeg',
     });
 
     products.add({ 'name': 'Chicken - Leg Pieces',
@@ -109,7 +109,7 @@ List<Map<String, dynamic>> getCommonProducts(String loadProductType) {
       'KGPrice': '350',
       'PicDir': CHICKEN_PIC_DIR,
       'subCategory': 'Chicken',
-      'PicName': 'Chicken_legPieces.jpg',
+      'PicName': 'Leg Pieces.jpeg',
     });
 
     products.add(
@@ -118,7 +118,7 @@ List<Map<String, dynamic>> getCommonProducts(String loadProductType) {
           'KGPrice': '275',
           'PicDir': CHICKEN_PIC_DIR,
           'subCategory': 'Chicken',
-          'PicName': 'WholeChicken_withSkinCurryCut_mediumPieces.jpg',
+          'PicName': 'Whole chicken  - with skin - curry cut - medium pieces.jpeg',
         });
 
     products.add(
@@ -127,7 +127,7 @@ List<Map<String, dynamic>> getCommonProducts(String loadProductType) {
           'KGPrice': '275',
           'PicDir': CHICKEN_PIC_DIR,
           'subCategory': 'Chicken',
-          'PicName': 'WholeChicken_withSkinCurryCut_largePieces.jpg',
+          'PicName': 'Whole chicken  - with skin - curry cut - large pieces.jpeg',
         });
 
     products.add(
@@ -136,7 +136,7 @@ List<Map<String, dynamic>> getCommonProducts(String loadProductType) {
           'KGPrice': '350',
           'PicDir': CHICKEN_PIC_DIR,
           'subCategory': 'Chicken',
-          'PicName': 'CountryNatiChicken_withSkinCurryCut_mediumPieces.jpg',
+          'PicName': 'CountryNati Chicken - with skin - burnt - medium pieces.jpeg',
         });
   }
 
@@ -147,7 +147,7 @@ List<Map<String, dynamic>> getCommonProducts(String loadProductType) {
       'KGPrice': '1500',
       'PicDir': MUTTTON_PIC_DIR,
       'subCategory': 'Mutton',
-      'PicName': 'Item 1.jpg',
+      'PicName': 'Lamb - Boneless - curry cut - small pieces.jpeg',
     });
 
     products.add({ 'name': 'Lamb - Boneless - curry cut - medium pieces',
@@ -155,7 +155,7 @@ List<Map<String, dynamic>> getCommonProducts(String loadProductType) {
       'KGPrice': '1500',
       'PicDir': MUTTTON_PIC_DIR,
       'subCategory': 'Mutton',
-      'PicName': 'Item 2.jpg',
+      'PicName': 'Lamb - Boneless - curry cut - medium pieces.jpeg',
     });
 
     products.add(
@@ -164,21 +164,21 @@ List<Map<String, dynamic>> getCommonProducts(String loadProductType) {
           'KGPrice': '1500',
           'PicDir': MUTTTON_PIC_DIR,
           'subCategory': 'Mutton',
-          'PicName': 'Item 3.jpg',
+          'PicName': 'Lamb - Boneless - curry cut - large(biryani) pieces.jpeg',
         });
     products.add({ 'name': 'Lamb - with bone - curry cut - small pieces',
       'desc': 'Lamb - with bone - curry cut - small pieces',
       'KGPrice': '1000',
       'PicDir': MUTTTON_PIC_DIR,
       'subCategory': 'Mutton',
-      'PicName': 'Item 4.jpg',
+      'PicName': 'Lamb - with bone - curry cut - small pieces.jpeg',
     });
     products.add({ 'name': 'Lamb - with bone - curry cut - medium pieces',
       'desc': 'Lamb - with bone - curry cut - medium pieces',
       'KGPrice': '1000',
       'PicDir': MUTTTON_PIC_DIR,
       'subCategory': 'Mutton',
-      'PicName': 'Item 5.jpg',
+      'PicName': 'Lamb - with bone - curry cut - medium pieces.jpeg',
     });
     products.add(
         { 'name': 'Lamb - with bone - curry cut - large(biryani) pieces',
@@ -186,28 +186,28 @@ List<Map<String, dynamic>> getCommonProducts(String loadProductType) {
           'KGPrice': '1000',
           'PicDir': MUTTTON_PIC_DIR,
           'subCategory': 'Mutton',
-          'PicName': 'Item 6.jpg',
+          'PicName': 'Lamb - with bone - curry cut - large(biryani) pieces.jpeg',
         });
     products.add({ 'name': 'Lamb - Chops & Ribs',
       'desc': 'Lamb - Chops & Ribs',
       'KGPrice': '1000',
       'PicDir': MUTTTON_PIC_DIR,
       'subCategory': 'Mutton',
-      'PicName': 'Item 7.jpg',
+      'PicName': 'Lamb - Chops _ Ribs.jpeg',
     });
     products.add({ 'name': 'Lamb - Chops',
       'desc': 'Lamb - Chops',
       'KGPrice': '1000',
       'PicDir': MUTTTON_PIC_DIR,
       'subCategory': 'Mutton',
-      'PicName': 'Item 8.jpg',
+      'PicName': 'Lamb - Chops.jpeg',
     });
     products.add({ 'name': 'Lamb - Keema',
       'desc': 'Lamb - Keema',
       'KGPrice': '1600',
       'PicDir': MUTTTON_PIC_DIR,
       'subCategory': 'Mutton',
-      'PicName': 'Item 9.jpg',
+      'PicName': 'Lamb - Keema.jpeg',
     });
     products.add({ 'name': 'Goat - Boneless - curry cut - small pieces',
       'desc': 'Goat - Boneless - curry cut - small pieces',
@@ -236,14 +236,14 @@ List<Map<String, dynamic>> getCommonProducts(String loadProductType) {
       'KGPrice': '1000',
       'PicDir': MUTTTON_PIC_DIR,
       'subCategory': 'Mutton',
-      'PicName': 'Item 13.jpg',
+      'PicName': 'Goat - with bone - curry cut - small pieces.jpeg',
     });
     products.add({ 'name': 'Goat - with bone - curry cut - medium pieces',
       'desc': 'Goat - with bone - curry cut - medium pieces',
       'KGPrice': '1000',
       'PicDir': MUTTTON_PIC_DIR,
       'subCategory': 'Mutton',
-      'PicName': 'Item 14.jpg',
+      'PicName': 'Goat - with bone - curry cut - medium pieces.jpeg',
     });
     products.add(
         { 'name': 'Goat - with bone - curry cut - large(biryani) pieces',
@@ -251,7 +251,7 @@ List<Map<String, dynamic>> getCommonProducts(String loadProductType) {
           'KGPrice': '1000',
           'PicDir': MUTTTON_PIC_DIR,
           'subCategory': 'Mutton',
-          'PicName': 'Item 15.jpg',
+          'PicName': 'Goat - with bone - curry cut - large(biryani) pieces.jpeg',
         });
     products.add({ 'name': 'Goat - Chops & Ribs',
       'desc': 'Goat - Chops & Ribs',
@@ -265,14 +265,14 @@ List<Map<String, dynamic>> getCommonProducts(String loadProductType) {
       'KGPrice': '1000',
       'PicDir': MUTTTON_PIC_DIR,
       'subCategory': 'Mutton',
-      'PicName': 'Item 17.jpg',
+      'PicName': 'Goat - Chops.jpeg',
     });
     products.add({ 'name': 'Goat - Keema',
-      'desc': 'Lamb - Boneless - curry cut - small pieces',
+      'desc': 'Goat - Keema',
       'KGPrice': '1600',
       'PicDir': MUTTTON_PIC_DIR,
       'subCategory': 'Mutton',
-      'PicName': 'Item 18.jpg',
+      'PicName': 'Goat - Keema.jpeg',
     });
     products.add({ 'name': 'Mutton - Fat',
       'desc': 'Mutton - Fat',
@@ -286,21 +286,21 @@ List<Map<String, dynamic>> getCommonProducts(String loadProductType) {
       'KGPrice': '800',
       'PicDir': MUTTTON_PIC_DIR,
       'subCategory': 'Mutton',
-      'PicName': 'Item 20.jpg',
+      'PicName': 'Kidney.jpeg',
     });
     products.add({ 'name': 'Mutton - Liver',
       'desc': 'Mutton - Liver',
       'KGPrice': '800',
       'PicDir': MUTTTON_PIC_DIR,
       'subCategory': 'Mutton',
-      'PicName': 'Item 21.jpg',
+      'PicName': 'Liver.jpeg',
     });
     products.add({ 'name': 'Mutton - Heart',
       'desc': 'Mutton - Heart',
       'KGPrice': '800',
       'PicDir': MUTTTON_PIC_DIR,
       'subCategory': 'Mutton',
-      'PicName': 'Item 22.jpg',
+      'PicName': 'Heart.jpeg',
     });
     products.add({ 'name': 'Mutton - Brain',
       'desc': 'Mutton - Brain',
@@ -314,21 +314,21 @@ List<Map<String, dynamic>> getCommonProducts(String loadProductType) {
       'KGPrice': '550',
       'PicDir': MUTTTON_PIC_DIR,
       'subCategory': 'Mutton',
-      'PicName': 'Item 24.jpg',
+      'PicName': 'Soup Bones.jpeg',
     });
     products.add({ 'name': 'Mutton - Head',
       'desc': 'Mutton - Head',
       'KGPrice': '1200',
       'PicDir': MUTTTON_PIC_DIR,
       'subCategory': 'Mutton',
-      'PicName': 'Item 25.jpg',
+      'PicName': 'Head.jpeg',
     });
     products.add({ 'name': 'Mutton - Legs',
       'desc': 'Mutton - Legs',
       'KGPrice': '1200',
       'PicDir': MUTTTON_PIC_DIR,
       'subCategory': 'Mutton',
-      'PicName': 'Item 26.jpg',
+      'PicName': 'Legs.jpeg',
     });
   }
 
@@ -339,7 +339,7 @@ List<Map<String, dynamic>> getCommonProducts(String loadProductType) {
       'KGPrice': '250',
       'PicDir': FISH_PIC_DIR,
       'subCategory': 'Fish',
-      'PicName': 'ROHU.jpg',
+      'PicName': 'ROHU.jpeg',
       'fishCategory' : 'FreshWater'
     });
     products.add({ 'name': 'TALAPIA',
@@ -347,7 +347,7 @@ List<Map<String, dynamic>> getCommonProducts(String loadProductType) {
       'KGPrice': '250',
       'PicDir': FISH_PIC_DIR,
       'subCategory': 'Fish',
-      'PicName': 'TILAPIA.jpg',
+      'PicName': 'TILAPIA.jpeg',
       'fishCategory' : 'FreshWater'
     });
     products.add({ 'name': 'CATLA',
@@ -355,7 +355,7 @@ List<Map<String, dynamic>> getCommonProducts(String loadProductType) {
       'KGPrice': '250',
       'PicDir': FISH_PIC_DIR,
       'subCategory': 'Fish',
-      'PicName': 'CATLA.jpg',
+      'PicName': 'CATLA.jpeg',
       'fishCategory' : 'FreshWater'
     });
     products.add({ 'name': 'PEARL SPOT / KARIMEEN / KORAL',
@@ -363,7 +363,7 @@ List<Map<String, dynamic>> getCommonProducts(String loadProductType) {
       'KGPrice': '350',
       'PicDir': FISH_PIC_DIR,
       'subCategory': 'Fish',
-      'PicName': 'PEARL SPOTKARIMEENKORAL.jpg',
+      'PicName': 'PEARL SPOTKARIMEENKORAL.jpeg',
       'fishCategory' : 'FreshWater'
     });
     products.add({ 'name': 'SINGHARA/SEENGHALA/AYER/AAR/LONG WHISKERE CATFISH/VELLAKORI',
@@ -371,7 +371,7 @@ List<Map<String, dynamic>> getCommonProducts(String loadProductType) {
       'KGPrice': '450',
       'PicDir': FISH_PIC_DIR,
       'subCategory': 'Fish',
-      'PicName': 'SINGHARASEENGHALAAYERAARLONG WHISKERE CATFISHVELLAKORI.jpg',
+      'PicName': 'SINGHARASEENGHALAAYERAARLONG WHISKERE CATFISHVELLAKORI.jpeg',
       'fishCategory' : 'FreshWater'
     });
     products.add({ 'name': 'BARRAMUNDI/BHEKTHI/ASIAN SEA BASS',
@@ -387,7 +387,7 @@ List<Map<String, dynamic>> getCommonProducts(String loadProductType) {
       'KGPrice': '550',
       'PicDir': FISH_PIC_DIR,
       'subCategory': 'Fish',
-      'PicName': 'PINK PERCHRED FISHSANKARA.jpg',
+      'PicName': 'PINK PERCHRED FISHSANKARA.jpeg',
       'fishCategory' : 'FreshWater'
     });
     products.add({ 'name': 'BOAL FISH',
@@ -395,7 +395,7 @@ List<Map<String, dynamic>> getCommonProducts(String loadProductType) {
       'KGPrice': '550',
       'PicDir': FISH_PIC_DIR,
       'subCategory': 'Fish',
-      'PicName': 'BOAL FISH.jpg',
+      'PicName': 'BOAL FISH.jpeg',
       'fishCategory' : 'FreshWater'
     });
     products.add({ 'name': 'PABDA FISH',
@@ -403,7 +403,7 @@ List<Map<String, dynamic>> getCommonProducts(String loadProductType) {
       'KGPrice': '750',
       'PicDir': FISH_PIC_DIR,
       'subCategory': 'Fish',
-      'PicName': 'PABDA FISH.jpg',
+      'PicName': 'PABDA FISH.jpeg',
       'fishCategory' : 'FreshWater'
     });
     products.add({ 'name': 'WHITE PRAWNS/ CHEMMEEN',
@@ -411,7 +411,7 @@ List<Map<String, dynamic>> getCommonProducts(String loadProductType) {
       'KGPrice': '650',
       'PicDir': FISH_PIC_DIR,
       'subCategory': 'Fish',
-      'PicName': 'WHITE PRAWNS CHEMMEEN.jpg',
+      'PicName': 'WHITE PRAWNS CHEMMEEN.jpeg',
       'fishCategory' : 'FreshWater'
     });
     products.add({ 'name': 'TIGER PRAWNS',
@@ -419,7 +419,7 @@ List<Map<String, dynamic>> getCommonProducts(String loadProductType) {
       'KGPrice': '1800',
       'PicDir': FISH_PIC_DIR,
       'subCategory': 'Fish',
-      'PicName': 'TIGER PRAWNS.jpg',
+      'PicName': 'TIGER PRAWNS.jpeg',
       'fishCategory' : 'FreshWater'
     });
     products.add({ 'name': 'INDIAN SALMON/VAZHMEEN/RAAVAS/GURJALI',
@@ -427,7 +427,7 @@ List<Map<String, dynamic>> getCommonProducts(String loadProductType) {
       'KGPrice': '1000',
       'PicDir': FISH_PIC_DIR,
       'subCategory': 'Fish',
-      'PicName': 'INDIAN SALMON VAZHMEENRAAVASGURJALI.jpg',
+      'PicName': 'INDIAN SALMON VAZHMEENRAAVASGURJALI.jpeg',
       'fishCategory' : 'FreshWater'
     });
     products.add({ 'name': 'HILSA/ELISH/PALAVA',
@@ -435,7 +435,7 @@ List<Map<String, dynamic>> getCommonProducts(String loadProductType) {
       'KGPrice': '1000',
       'PicDir': FISH_PIC_DIR,
       'subCategory': 'Fish',
-      'PicName': 'HILSAELISHPALUVA.jpg',
+      'PicName': 'HILSAELISHPALUVA.jpeg',
       'fishCategory' : 'FreshWater'
     });
     products.add({ 'name': 'KAJOLI FISH',
@@ -443,7 +443,7 @@ List<Map<String, dynamic>> getCommonProducts(String loadProductType) {
       'KGPrice': '1000',
       'PicDir': FISH_PIC_DIR,
       'subCategory': 'Fish',
-      'PicName': 'KAJOLI FISH.jpg',
+      'PicName': 'KAJOLI FISH.jpeg',
       'fishCategory' : 'FreshWater'
     });
     products.add({ 'name': 'SNAKE HEAD FISH/ VARAAL/BRAL/KANNAN/SHOL/MURREL',
@@ -451,7 +451,7 @@ List<Map<String, dynamic>> getCommonProducts(String loadProductType) {
       'KGPrice': '500',
       'PicDir': FISH_PIC_DIR,
       'subCategory': 'Fish',
-      'PicName': 'SNAKE HEAD FISH VARAAL BRALKANNANSHOLMURREL.jpg',
+      'PicName': 'SNAKE HEAD FISH VARAAL BRALKANNANSHOLMURREL.jpeg',
       'fishCategory' : 'FreshWater'
     });
     products.add({ 'name': 'FRESH INDIAN BASA / PANGAS',
@@ -459,7 +459,7 @@ List<Map<String, dynamic>> getCommonProducts(String loadProductType) {
       'KGPrice': '250',
       'PicDir': FISH_PIC_DIR,
       'subCategory': 'Fish',
-      'PicName': 'FRESH INDIAN BASA  PANGAS.jpg',
+      'PicName': 'FRESH INDIAN BASA  PANGAS.jpeg',
       'fishCategory' : 'FreshWater'
     });
 
@@ -469,7 +469,7 @@ List<Map<String, dynamic>> getCommonProducts(String loadProductType) {
       'KGPrice': '1000',
       'PicDir': FISH_PIC_DIR,
       'subCategory': 'Fish',
-      'PicName': 'VANJARAM.jpg',
+      'PicName': 'VANJARAM.jpeg',
       'fishCategory' : 'SeaFish'
     });
     products.add({ 'name': 'MACKEREL/BANGDA',
@@ -477,7 +477,7 @@ List<Map<String, dynamic>> getCommonProducts(String loadProductType) {
       'KGPrice': '300',
       'PicDir': FISH_PIC_DIR,
       'subCategory': 'Fish',
-      'PicName': 'MACKERELBANGDA.jpg',
+      'PicName': 'MACKERELBANGDA.jpeg',
       'fishCategory' : 'SeaFish'
     });
     products.add({ 'name': 'EMPEROR/VILAI MEEN/ERIMEENU',
@@ -485,7 +485,7 @@ List<Map<String, dynamic>> getCommonProducts(String loadProductType) {
       'KGPrice': '500',
       'PicDir': FISH_PIC_DIR,
       'subCategory': 'Fish',
-      'PicName': 'EMPERORVILAI MEENERIMEENU.jpg',
+      'PicName': 'EMPERORVILAI MEENERIMEENU.jpeg',
       'fishCategory' : 'SeaFish'
     });
     products.add({ 'name': 'SARDINE/MATHI',
@@ -493,7 +493,7 @@ List<Map<String, dynamic>> getCommonProducts(String loadProductType) {
       'KGPrice': '300',
       'PicDir': FISH_PIC_DIR,
       'subCategory': 'Fish',
-      'PicName': 'SARDINEMATHI.jpg',
+      'PicName': 'SARDINEMATHI.jpeg',
       'fishCategory' : 'SeaFish'
     });
     products.add({ 'name': 'TUNA/CHOORA/CHOORAI/SURAI',
@@ -501,7 +501,7 @@ List<Map<String, dynamic>> getCommonProducts(String loadProductType) {
       'KGPrice': '500',
       'PicDir': FISH_PIC_DIR,
       'subCategory': 'Fish',
-      'PicName': 'TUNACHOORACHOORAISURAI.jpg',
+      'PicName': 'TUNACHOORACHOORAISURAI.jpeg',
       'fishCategory' : 'SeaFish'
     });
     products.add({ 'name': 'BLACK POMFRET/AVOLI/VAVAL/CHANDI/MANJI',
@@ -509,7 +509,7 @@ List<Map<String, dynamic>> getCommonProducts(String loadProductType) {
       'KGPrice': '1450',
       'PicDir': FISH_PIC_DIR,
       'subCategory': 'Fish',
-      'PicName': 'BLACK POMFRET AVOLIVAVALCHANDIMANJI).jpg',
+      'PicName': 'BLACK POMFRET AVOLIVAVALCHANDIMANJI).jpeg',
       'fishCategory' : 'SeaFish'
     });
     products.add({ 'name': 'WHITE POMFRET/AVOLI/PAPLET',
@@ -517,7 +517,7 @@ List<Map<String, dynamic>> getCommonProducts(String loadProductType) {
       'KGPrice': '1900',
       'PicDir': FISH_PIC_DIR,
       'subCategory': 'Fish',
-      'PicName': 'WHITE POMFRETAVOLIPAPLET.jpg',
+      'PicName': 'WHITE POMFRETAVOLIPAPLET.jpeg',
       'fishCategory' : 'SeaFish'
     });
     products.add({ 'name': 'SILVER POMFRET/ WHITE POMFRET',
@@ -525,7 +525,7 @@ List<Map<String, dynamic>> getCommonProducts(String loadProductType) {
       'KGPrice': '3900',
       'PicDir': FISH_PIC_DIR,
       'subCategory': 'Fish',
-      'PicName': 'SILVER POMFRET WHITE POMFRET.jpg',
+      'PicName': 'SILVER POMFRET WHITE POMFRET.jpeg',
       'fishCategory' : 'SeaFish'
     });
     products.add({ 'name': 'WHITE SARDINE/ SILVER FISH/VELOORI',
@@ -536,22 +536,20 @@ List<Map<String, dynamic>> getCommonProducts(String loadProductType) {
       'PicName': 'WHITE SARDINE SILVER FISHVELOORI.jpg',
       'fishCategory' : 'SeaFish'
     });
-    //TODO: check the pic
-    products.add({ 'name': 'ROOPCHAND(pic check)',
+    products.add({ 'name': 'ROOPCHAND',
       'desc': 'ROOPCHAND',
       'KGPrice': '270',
       'PicDir': FISH_PIC_DIR,
       'subCategory': 'Fish',
-      'PicName': 'PINK PERCHRED FISHSANKARA.jpg',
+      'PicName': 'ROOPCHAND.jpeg',
       'fishCategory' : 'SeaFish'
     });
-
     products.add({ 'name': 'SHARK',
       'desc': 'SHARK',
       'KGPrice': '1500',
       'PicDir': FISH_PIC_DIR,
       'subCategory': 'Fish',
-      'PicName': 'SHARK.jpg',
+      'PicName': 'SHARK.jpeg',
       'fishCategory' : 'SeaFish'
     });
     products.add({ 'name': 'ANCHOVY/NATHOLI',
@@ -559,15 +557,15 @@ List<Map<String, dynamic>> getCommonProducts(String loadProductType) {
       'KGPrice': '500',
       'PicDir': FISH_PIC_DIR,
       'subCategory': 'Fish',
-      'PicName': 'ANCHOVYNATHOLI.jpg',
+      'PicName': 'ANCHOVYNATHOLI.jpeg',
       'fishCategory' : 'SeaFish'
     });
-    products.add({ 'name': 'KING FISH/ KADAL / ANJAL(Price check)',
+    products.add({ 'name': 'KING FISH/ KADAL / ANJAL',
       'desc': 'KING FISH/ KADAL / ANJAL',
-      'KGPrice': '2',
+      'KGPrice': '1000',
       'PicDir': FISH_PIC_DIR,
       'subCategory': 'Fish',
-      'PicName': 'KING FISH KADAL  ANJAL.jpg',
+      'PicName': 'KING FISH KADAL  ANJAL.jpeg',
       'fishCategory' : 'SeaFish'
     });
     products.add({ 'name': 'RED SNAPPER/RANI/CHEMBALLI',
@@ -575,7 +573,7 @@ List<Map<String, dynamic>> getCommonProducts(String loadProductType) {
       'KGPrice': '2000',
       'PicDir': FISH_PIC_DIR,
       'subCategory': 'Fish',
-      'PicName': 'RED SNAPPERRANICHEMBALLI.jpg',
+      'PicName': 'RED SNAPPERRANICHEMBALLI.jpeg',
       'fishCategory' : 'SeaFish'
     });
     products.add({ 'name': 'SEA CRAB',
@@ -583,7 +581,7 @@ List<Map<String, dynamic>> getCommonProducts(String loadProductType) {
       'KGPrice': '650',
       'PicDir': FISH_PIC_DIR,
       'subCategory': 'Fish',
-      'PicName': 'SEA CRAB.jpg',
+      'PicName': 'SEA CRAB.jpeg',
       'fishCategory' : 'SeaFish'
     });
     products.add({ 'name': 'BLUE CRAB',
@@ -591,7 +589,7 @@ List<Map<String, dynamic>> getCommonProducts(String loadProductType) {
       'KGPrice': '1400',
       'PicDir': FISH_PIC_DIR,
       'subCategory': 'Fish',
-      'PicName': 'BLUE CRAB.jpg',
+      'PicName': 'BLUE CRAB.jpeg',
       'fishCategory' : 'SeaFish'
     });
     products.add({ 'name': 'FLOWER SHRIMPS',
@@ -599,7 +597,7 @@ List<Map<String, dynamic>> getCommonProducts(String loadProductType) {
       'KGPrice': '2000',
       'PicDir': FISH_PIC_DIR,
       'subCategory': 'Fish',
-      'PicName': 'FLOWER SHRIMPS.jpg',
+      'PicName': 'FLOWER SHRIMPS.jpeg',
       'fishCategory' : 'SeaFish'
     });
     products.add({ 'name': 'PINK SHRIMP',
@@ -607,7 +605,7 @@ List<Map<String, dynamic>> getCommonProducts(String loadProductType) {
       'KGPrice': '1400',
       'PicDir': FISH_PIC_DIR,
       'subCategory': 'Fish',
-      'PicName': 'PINK SHRIMP.jpg',
+      'PicName': 'PINK SHRIMP.jpeg',
       'fishCategory' : 'SeaFish'
     });
     products.add({ 'name': 'BROWN SHRIMP/ WITCH SHRIMP (SEEGADI)',
@@ -615,7 +613,7 @@ List<Map<String, dynamic>> getCommonProducts(String loadProductType) {
       'KGPrice': '1600',
       'PicDir': FISH_PIC_DIR,
       'subCategory': 'Fish',
-      'PicName': 'BROWN SHRIMP WITCH SHRIMP (SEEGADI).jpg',
+      'PicName': 'BROWN SHRIMP WITCH SHRIMP (SEEGADI).jpeg',
       'fishCategory' : 'SeaFish'
     });
   }
@@ -623,17 +621,14 @@ List<Map<String, dynamic>> getCommonProducts(String loadProductType) {
   if(loadProductType.contains('Groceries')) {
 
   }
-/*
   if(loadProductType.contains('Service Provider')) {
     products.add({ 'name': 'Consultation / Inspection Charges',
       'desc': 'Consultation / Inspection Charges',
       'KGPrice': '350',
       'PicDir': SERVICES_PIC_DIR,
-      'subCategory': 'Fish',
+      'subCategory': 'HandyMan',
       'PicName': 'icons8-inspection-64.png',
-      'fishCategory' : 'SeaFish'
     });
   }
- */
   return products;
 }

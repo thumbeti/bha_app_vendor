@@ -32,11 +32,15 @@ class _VendorEditScreenState extends State<VendorEditScreen> {
   bool _editable = true;
   final _shopName = TextEditingController();
   final _ownerName = TextEditingController();
+  final _vendorID = TextEditingController();
   final _contactNumber = TextEditingController();
   final _whatsAppNum = TextEditingController();
   final _email = TextEditingController();
   final _gstNumber = TextEditingController();
   final _address = TextEditingController();
+  final _bankAccountNo = TextEditingController();
+  final _bankName = TextEditingController();
+  final _IFSCcode = TextEditingController();
   TimeOfDay selectedTime = TimeOfDay.now();
   TimeOfDay openTime = TimeOfDay(hour: 8, minute: 0);
   TimeOfDay closeTime = TimeOfDay(hour: 20, minute: 0);
@@ -46,11 +50,21 @@ class _VendorEditScreenState extends State<VendorEditScreen> {
   XFile? _shopImage;
   String? _shopImageUrl;
 
+  XFile? _GSTImage;
+  String? _GSTImageUrl;
+  XFile? _licenseImage;
+  String? _licenseImageUrl;
+  XFile? _aadharImage;
+  String? _aadharImageUrl;
+  XFile? _chequeImage;
+  String? _chequeImageUrl;
+
   @override
   void initState() {
     setState(() {
       _shopName.text = widget.vendor!.shopName!;
       _ownerName.text = widget.vendor!.ownerName!;
+      _vendorID.text = widget.vendor!.vendorId!;
       _contactNumber.text = widget.vendor!.mobile!;
       _whatsAppNum.text = widget.vendor!.whatsAppNum!;
       _email.text = widget.vendor!.email!;
@@ -64,6 +78,9 @@ class _VendorEditScreenState extends State<VendorEditScreen> {
       _weeklyOffDay = widget.vendor!.weeklyOffDay;
       _shopState = widget.vendor!.shopState!;
       _address.text = widget.vendor!.address!;
+      _bankAccountNo.text = widget.vendor!.bankDetails!['accountNo']?? '';
+      _bankName.text = widget.vendor!.bankDetails!['bankName']?? '';
+      _IFSCcode.text = widget.vendor!.bankDetails!['IFSCcode']?? '';
     });
     super.initState();
   }
@@ -98,35 +115,90 @@ class _VendorEditScreenState extends State<VendorEditScreen> {
     return dateFormat.format(tempDate);
   }
 
-  updateVendorWithPic(String? uid) {
+  updateVendorWithPics(Vendor? vendor) {
     EasyLoading.show(status: 'Please wait..');
     _services
-        .uploadImage(_shopImage, 'vendors/${_services.user!.uid}/shopImage.jpg')
+        .uploadImage(
+            _chequeImage, 'vendors/${_services.user!.uid}/BankChequeImage.jpg')
         .then((String? url) {
       if (url != null) {
         setState(() {
-          _shopImageUrl = url;
+          _chequeImageUrl = url;
         });
       }
     }).then((value) async {
-      await _services.vendors.doc(uid).update({
-        'shopImage': _shopImageUrl,
-        'shopName': _shopName.text,
-        'ownerName': _ownerName.text,
-        'mobile': _contactNumber.text,
-        'whatsAppNum': _whatsAppNum.text,
-        'email': _email.text,
-        'openTime': _services.timeOfDayToFirebase(openTime),
-        'closeTime': _services.timeOfDayToFirebase(closeTime),
-        'weeklyOffDay': _weeklyOffDay,
-        'shopState': _shopState,
-        'gstNumber': _gstNumber.text,
-        'address': _address.text,
+      _services
+          .uploadImage(
+              _aadharImage, 'vendors/${_services.user!.uid}/AadharImage.jpg')
+          .then((String? url) {
+        if (url != null) {
+          setState(() {
+            _aadharImageUrl = url;
+          });
+        }
       }).then((value) async {
-        setState(() {
-          _editable = true;
+        _services
+            .uploadImage(_licenseImage,
+                'vendors/${_services.user!.uid}/LicenseImage.jpg')
+            .then((String? url) {
+          if (url != null) {
+            setState(() {
+              _licenseImageUrl = url;
+            });
+          }
+        }).then((value) async {
+          _services
+              .uploadImage(
+                  _GSTImage, 'vendors/${_services.user!.uid}/GSTImage.jpg')
+              .then((String? url) {
+            if (url != null) {
+              setState(() {
+                _GSTImageUrl = url;
+              });
+            }
+          }).then((value) async {
+            _services
+                .uploadImage(
+                    _shopImage, 'vendors/${_services.user!.uid}/shopImage.jpg')
+                .then((String? url) {
+              if (url != null) {
+                setState(() {
+                  _shopImageUrl = url;
+                });
+              }
+            }).then((value) async {
+              await _services.vendors.doc(vendor!.uid).update({
+                'shopImage':
+                    _shopImageUrl != null ? _shopImageUrl : vendor.shopImage?? null,
+                'shopName': _shopName.text,
+                'ownerName': _ownerName.text,
+                'mobile': _contactNumber.text,
+                'whatsAppNum': _whatsAppNum.text,
+                'email': _email.text,
+                'openTime': _services.timeOfDayToFirebase(openTime),
+                'closeTime': _services.timeOfDayToFirebase(closeTime),
+                'weeklyOffDay': _weeklyOffDay,
+                'shopState': _shopState,
+                'gstNumber': _gstNumber.text,
+                'gstImage': _GSTImageUrl != null ? _GSTImageUrl : vendor.gstImage?? null,
+                'licenseImage': _licenseImageUrl != null? _licenseImageUrl : vendor.licenseImage?? null,
+                'aadharImage': _aadharImageUrl != null? _aadharImageUrl : vendor.aadharImage?? null,
+                'address': _address.text,
+                'bankDetails': {
+                  'cheque' : _chequeImageUrl!=null? _chequeImageUrl : vendor.bankDetails!['cheque']?? null,
+                  'bankName' : _bankName.text,
+                  'accountNo' : _bankAccountNo.text,
+                  'IFSCcode' : _IFSCcode.text,
+                }
+              }).then((value) async {
+                setState(() {
+                  _editable = true;
+                });
+                EasyLoading.dismiss();
+              });
+            });
+          });
         });
-        EasyLoading.dismiss();
       });
     });
     return;
@@ -183,9 +255,7 @@ class _VendorEditScreenState extends State<VendorEditScreen> {
                       child: Text('Save'),
                       onPressed: () {
                         if (_formKey.currentState!.validate()) {
-                          _shopImage == null
-                              ? updateVendor(_vendorData.vendor!.uid!)
-                              : updateVendorWithPic(_vendorData.vendor!.uid!);
+                          updateVendorWithPics(_vendorData.vendor);
                         }
                       },
                     ),
@@ -210,13 +280,13 @@ class _VendorEditScreenState extends State<VendorEditScreen> {
                       },
                       child: _shopImage == null
                           ? Container(
-                              height: 240,
+                              height: 150,
                               width: MediaQuery.of(context).size.width,
                               child: CachedNetworkImage(
                                   imageUrl: _vendorData.vendor!.shopImage!),
                             )
                           : Container(
-                              height: 240,
+                              height: 150,
                               decoration: BoxDecoration(
                                 color: Colors.blue,
                                 image: DecorationImage(
@@ -252,6 +322,12 @@ class _VendorEditScreenState extends State<VendorEditScreen> {
                           }
                           return null;
                         }),
+                    _services.formField(
+                      controller: _vendorID,
+                      label: 'Vendor ID',
+                      inputType: TextInputType.text,
+                      readOnly: true,
+                    ),
                     TextFormField(
                       controller: _gstNumber,
                       keyboardType: TextInputType.text,
@@ -262,10 +338,7 @@ class _VendorEditScreenState extends State<VendorEditScreen> {
                       maxLengthEnforcement: MaxLengthEnforcement.enforced,
                       autovalidateMode: AutovalidateMode.onUserInteraction,
                       validator: (value) {
-                        if (value!.isEmpty) {
-                          return 'Enter GST Number';
-                        }
-                        if (value.isNotEmpty) {
+                        if (value!=null && value.isNotEmpty) {
                           final bool isValid = GSTValidator().isValid(value);
                           if (isValid == false) {
                             return 'Invalid GST Number';
@@ -273,6 +346,129 @@ class _VendorEditScreenState extends State<VendorEditScreen> {
                         }
                         return null;
                       },
+                    ),
+                    Text('GST Cerificate'),
+                    //GST Certificate
+                    InkWell(
+                      onTap: () {
+                        _pickImage().then((value) {
+                          setState(() {
+                            _GSTImage = value;
+                          });
+                        });
+                      },
+                      child: _GSTImage == null
+                          ? Container(
+                              height: 100,
+                              width: MediaQuery.of(context).size.width,
+                              color: Colors.blue.shade100,
+                              child: _vendorData.vendor!.gstImage == null
+                                  ? Center(
+                                      child: Text('Add GST Certificate.',
+                                          style: TextStyle(
+                                              color: Colors.grey.shade800,
+                                              fontSize: 15)),
+                                    )
+                                  : CachedNetworkImage(
+                                      imageUrl: _vendorData.vendor!.gstImage!),
+                            )
+                          : Container(
+                              height: 100,
+                              decoration: BoxDecoration(
+                                color: Colors.blue,
+                                image: DecorationImage(
+                                  image: FileImage(
+                                    File(_GSTImage!.path),
+                                  ),
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            ),
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Text('Shop license'),
+                    //Shop license
+                    InkWell(
+                      onTap: () {
+                        _pickImage().then((value) {
+                          setState(() {
+                            _licenseImage = value;
+                          });
+                        });
+                      },
+                      child: _licenseImage == null
+                          ? Container(
+                        height: 100,
+                        width: MediaQuery.of(context).size.width,
+                        color: Colors.blue.shade100,
+                        child: _vendorData.vendor!.licenseImage == null
+                            ? Center(
+                          child: Text('Add Shop license.',
+                              style: TextStyle(
+                                  color: Colors.grey.shade800,
+                                  fontSize: 15)),
+                        )
+                            : CachedNetworkImage(
+                            imageUrl: _vendorData.vendor!.licenseImage!),
+                      )
+                          : Container(
+                        height: 100,
+                        decoration: BoxDecoration(
+                          color: Colors.blue,
+                          image: DecorationImage(
+                            image: FileImage(
+                              File(_licenseImage!.path),
+                            ),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Text('Aadhar card'),
+                    //Aadhar card
+                    InkWell(
+                      onTap: () {
+                        _pickImage().then((value) {
+                          setState(() {
+                            _aadharImage = value;
+                          });
+                        });
+                      },
+                      child: _aadharImage == null
+                          ? Container(
+                        height: 100,
+                        width: MediaQuery.of(context).size.width,
+                        color: Colors.blue.shade100,
+                        child: _vendorData.vendor!.aadharImage == null
+                            ? Center(
+                          child: Text('Add Aadhar card.',
+                              style: TextStyle(
+                                  color: Colors.grey.shade800,
+                                  fontSize: 15)),
+                        )
+                            : CachedNetworkImage(
+                            imageUrl: _vendorData.vendor!.aadharImage!),
+                      )
+                          : Container(
+                        height: 100,
+                        decoration: BoxDecoration(
+                          color: Colors.blue,
+                          image: DecorationImage(
+                            image: FileImage(
+                              File(_aadharImage!.path),
+                            ),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 10,
                     ),
                     TextFormField(
                       controller: _contactNumber,
@@ -418,6 +614,67 @@ class _VendorEditScreenState extends State<VendorEditScreen> {
                           }
                           return null;
                         }),
+                    const Divider(color: Colors.grey,),
+                    Text('Bank Details',
+                      style: TextStyle(fontSize: 20),
+                      textAlign: TextAlign.left,),
+                    //Bank cheque Image
+                    Text('Bank cheque'),
+                    InkWell(
+                      onTap: () {
+                        _pickImage().then((value) {
+                          setState(() {
+                            _chequeImage = value;
+                          });
+                        });
+                      },
+                      child: _chequeImage == null
+                          ? Container(
+                        height: 100,
+                        width: MediaQuery.of(context).size.width,
+                        color: Colors.blue.shade100,
+                        child: _vendorData.vendor!.bankDetails!['cheque'] == null
+                            ? Center(
+                          child: Text('Add Cheque image.',
+                              style: TextStyle(
+                                  color: Colors.grey.shade800,
+                                  fontSize: 15)),
+                        )
+                            : CachedNetworkImage(
+                            imageUrl: _vendorData.vendor!.bankDetails!['cheque']),
+                      )
+                          : Container(
+                        height: 100,
+                        decoration: BoxDecoration(
+                          color: Colors.blue,
+                          image: DecorationImage(
+                            image: FileImage(
+                              File(_chequeImage!.path),
+                            ),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    _services.formField(
+                      controller: _bankAccountNo,
+                      label: 'Bank A/C No',
+                      inputType: TextInputType.number,
+                    ),
+                    _services.formField(
+                      controller: _bankName,
+                      label: 'Bank Name',
+                      inputType: TextInputType.text,
+                    ),
+                    _services.formField(
+                      controller: _IFSCcode,
+                      label: 'IFSC Code',
+                      inputType: TextInputType.text,
+                    ),
+                    const Divider(color: Colors.grey,),
                   ],
                 ),
               ),

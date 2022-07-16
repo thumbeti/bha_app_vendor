@@ -21,14 +21,20 @@ class FirebaseServices{
   final CollectionReference subCategories = FirebaseFirestore.instance.collection('subCategories');
   final CollectionReference products = FirebaseFirestore.instance.collection('products');
   final CollectionReference sendEmail = FirebaseFirestore.instance.collection('mail');
+  final CollectionReference executives = FirebaseFirestore.instance.collection('executives');
   firebase_storage.FirebaseStorage storage = firebase_storage.FirebaseStorage.instance;
 
-  Future<String> uploadImage(XFile? file, String? reference) async {
-    File _file = File(file!.path);
-    firebase_storage.Reference ref = firebase_storage.FirebaseStorage.instance.ref(reference);
-    await ref.putFile(_file);
-    String downloadURL = await ref.getDownloadURL();
-    return downloadURL;
+  Future<String?> uploadImage(XFile? file, String? reference) async {
+    if(file != null) {
+      File _file = File(file.path);
+      firebase_storage.Reference ref = firebase_storage.FirebaseStorage.instance
+          .ref(reference);
+      await ref.putFile(_file);
+      String downloadURL = await ref.getDownloadURL();
+      return downloadURL;
+    } else {
+      return null;
+    }
   }
 
   Future<String> getImageURL(String? reference) async {
@@ -43,6 +49,14 @@ class FirebaseServices{
         .set(data)
         .then((value) => print("User Added"))
         .catchError((error) => print("Failed to add user: $error"));
+  }
+
+  Future<void> addExecutive({Map<String, dynamic>? data, BuildContext? context}) {
+    // Call the user's CollectionReference to add a new user
+    return executives
+        .add(data)
+        .then((value) => scaffold(context,"Executive Added with ID: ${data!['ID']}"))
+        .catchError((error) => scaffold(context,"Failed to add executive: $error"));
   }
 
   Future<void> saveToDB({Map<String, dynamic>? data, BuildContext? context}) {
@@ -72,9 +86,6 @@ class FirebaseServices{
     //Get all Chicken products.
     List<Map<String, dynamic>> prodList = getCommonProducts(vendor.loadProductType!);
     for(Map<String, dynamic> prod in prodList) {
-      if((prod['subCategory'] == 'Chicken') || (prod['subCategory'] == 'Mutton')){
-        continue;
-      }
       String imageURL = await getImageURL(
           'products/BhaAppCommonImages/${prod['PicDir']}/${prod['PicName']}');
 
@@ -91,7 +102,12 @@ class FirebaseServices{
           'type' : prod['fishCategory'],
         };
       }
-
+      if(prod['subCategory'] == 'HandyMan') {
+        productData['category'] = 'Services';
+        productData['mainCategory'] = 'HomeServices';
+        productData['subCategory'] = prod['subCategory'];
+        productData['priceUnit'] = units[8];
+      }
       await products.add(productData);
     }
     EasyLoading.dismiss();
@@ -131,7 +147,7 @@ class FirebaseServices{
     await sendEmail.add(
       {
         'to': "${vendorEmail}",
-        'cc': 'bhaapp22@gmail.com',
+        'cc': 'info@bhaap.com',
         'bcc': ['thumbeti@gmail.com'],
         //'bcc': ['thumbeti@gmail.com', 'tbrahma@yahoo.com'],
         'message': {
@@ -150,7 +166,7 @@ class FirebaseServices{
   String formInvoice({String? vendorName, String? address, String? paymentID,
     String? gstNo, String? regFee, String? cgstFee, String? sgstFee,
     String? igstFee, String? total,
-    int? cgst, int?sgst, int? igst}){
+    int? cgst, int?sgst, int? igst, String? vendorId}){
     String dateString = DateFormat('yyyy-MM-dd – kk:mm').format(DateTime.now());
     return 'T A X I N V O I C E\n'
         '----------------------------\n'
@@ -167,14 +183,15 @@ class FirebaseServices{
         'INVOICE DATE: ${dateString}\n'
         'ADDRESS: ${address}\n\n'
         'Client GST No.: ${gstNo}\n\n'
+        'VENDOR CODE: ${vendorId}\n'
         'BhaApp team thanks you and confirms your registration:\n\n'
         'SNo  Activity description       Amount\n'
-        '1      Registration...............Rs. ${regFee}\n'
-        '        CGST @ ${cgst}%...........Rs. ${cgstFee}\n'
-        '        SGST @ ${sgst}%...........Rs. ${sgstFee}\n'
-        '        IGST @ ${igst}%...........Rs. ${igstFee}\n'
-        '        Total.....................Rs. ${total}\n'
-        'Rupees Five Hundred and Ninety only.\n\n'
+        '1      Registration..................Rs. ${regFee}\n'
+        '        CGST @ ${cgst}%................Rs. ${cgstFee}\n'
+        '        SGST @ ${sgst}%................Rs. ${sgstFee}\n'
+        '        IGST @ ${igst}%................Rs. ${igstFee}\n'
+        '        Total.............................Rs. ${total}\n'
+        'Rupees Ninety Nine only.\n\n'
         'Declaration:\n'
         'Certified that all the particulars shown in the above Invoice are true and correct.\n\n'
         'Terms & Conditions:\n'
@@ -184,40 +201,6 @@ class FirebaseServices{
         'Thanking you,\n'
         'BhaApp Team\n'
         'Oxysmart Pvt Ltd';
-  }
-
-  String formInvoice_old({String? vendorName, String? address, String? paymentID,
-                    String? gstNo, String? regFee, String? cgstFee, String? sgstFee,
-                    String? igstFee, String? total,
-                    int? cgst, int?sgst, int? igst}){
-    String dateString = DateFormat('yyyy-MM-dd – kk:mm').format(DateTime.now());
-    return '            T A X I N V O I C E\n'
-    '                                                                        \n'
-    '             Oxysmart Private Limited                                   \n'
-    '#324, 8th Cross, MCECHS Layout Phase 1, Dr Shivaram Karanth Nagar, Bangalore 560 077,\n'
-    '         Karnataka, India, M: +91 89 71 765469, E: info@jiosmart.in,     \n'
-    'CIN: U74999KA2016PTC095005, GSTIN: 29AADCJ7541F1ZG, PAN: AADCJ7541F      \n'
-    'Invoice to: ${vendorName}                   INVOICE NO.: ${paymentID}    \n'
-    'Mr/Mrs                                     INVOICE DATE: ${dateString}   \n'
-    'Address: ${address}\n'
-    'Client GST No.: ${gstNo}\n'
-    'BhaApp team thanks you and confirms your registration:                   \n'
-    'SNo  Activity description       Amount             \n'
-    '1    Registration with BhaApp   Rs. ${regFee}\n'
-    '     CGST @ ${cgst}%                  Rs. ${cgstFee}\n'
-    '     SGST @ ${sgst}%                  Rs. ${sgstFee}\n'
-    '     IGST @ ${igst}%                  Rs. ${igstFee}\n'
-    '     Total                      Rs. ${total}\n'
-    'Rupees Five Hundred and Ninety only.               \n'
-    'Declaration:\n'
-    'Certified that all the particulars shown in the above Invoice are true and correct.\n'
-    'Terms & Conditions:\n'
-    'E & O.E.\n'
-    '1. Registration charges are not refundable\n'
-    '2. Subject to "Karnataka" jurisdiction only\n'
-    'Thanking you,\n'
-    'BhaApp Team\n'
-    'Oxysmart Pvt Ltd\n';
   }
 
   String formattedNumber(number) {
@@ -233,6 +216,7 @@ class FirebaseServices{
     void Function(String)? onChanged,
     String? prefix,
     int? maxLength,
+    bool? readOnly,
     String? Function(String?)? validator,
   }) {
     return TextFormField(
@@ -244,6 +228,7 @@ class FirebaseServices{
         prefix: Text(prefix ?? ''),
       ),
       //maxLength: maxLength,
+      readOnly: readOnly==null? false : readOnly,
       autovalidateMode: AutovalidateMode.onUserInteraction,
       validator: validator,
       onChanged: onChanged,
